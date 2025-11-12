@@ -393,7 +393,11 @@ main {
 
 /* Panel izquierdo (formulario) */
 .signup-panel-left {
-    flex-basis: 60%;
+    /* --- CAMBIO AQUÍ --- */
+    /* flex-basis: 60%; */ /* <--- Quitamos esta línea */
+    flex-grow: 1;       /* <--- Añadimos esta línea */
+    /* --- FIN DEL CAMBIO --- */
+
     padding: 3rem;
     background-color: #ffffff;
     /* Curva para coincidir con la D (invertida) */
@@ -437,9 +441,11 @@ main {
 
     /* --- CORRECCIÓN DEL HUECO --- */
     /* --- CAMBIO AQUÍ --- */
-    /* Le decimos que crezca para llenar el espacio */
-    /* flex-grow: 1; */ /* <--- Quitamos esta línea */
-    flex-basis: 40%;   /* <--- Añadimos esta línea para que sea 40% */
+    /* Mantenemos el 40% fijo para la D azul */
+    flex-basis: 40%;
+    /* Y quitamos el flex-grow que pusimos por error antes */
+    /* flex-grow: 1; */
+    /* --- FIN DEL CAMBIO --- */
 }
 .signup-panel-right h2 {
     color: var(--text-light);
