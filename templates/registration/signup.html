@@ -12,23 +12,22 @@
         <div class="signup-panel signup-panel-left">
             <h2>Registrarse</h2>
             
-            <form method="post" novalidate> <!-- novalidate para mostrar nuestros errores -->
+            <form method="post" novalidate>
                 {% csrf_token %}
                 
-                <!-- Mostramos errores generales si existen -->
-                {% if user_form.non_field_errors or persona_form.non_field_errors %}
-                    <ul class="errorlist" style="margin-top: 0; margin-bottom: 1rem;">
+                <!-- Mostramos errores generales (ej. "Las contraseñas no coinciden") -->
+                {% if user_form.non_field_errors %}
+                    <ul class="errorlist">
                         {% for error in user_form.non_field_errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                        {% for error in persona_form.non_field_errors %}
                             <li>{{ error }}</li>
                         {% endfor %}
                     </ul>
                 {% endif %}
 
-                <!-- FORMULARIO DE USER -->
-                <div class="form-field">
+                <!-- FORMULARIO DE USER SIMPLIFICADO -->
+                
+                <!-- Campo Usuario (con la clase .error dinámica) -->
+                <div class="form-field {% if user_form.username.errors %}error{% endif %}">
                     <div class="form-field-wrapper">
                         <i class="icon fas fa-user"></i>
                         {{ user_form.username }}
@@ -38,7 +37,8 @@
                     {% endfor %}
                 </div>
                 
-                <div class="form-field">
+                <!-- Campo Email (con la clase .error dinámica) -->
+                <div class="form-field {% if user_form.email.errors %}error{% endif %}">
                     <div class="form-field-wrapper">
                         <i class="icon fas fa-envelope"></i>
                         {{ user_form.email }}
@@ -48,7 +48,8 @@
                     {% endfor %}
                 </div>
 
-                <div class="form-field">
+                <!-- Campo Contraseña (con la clase .error dinámica) -->
+                <div class="form-field {% if user_form.password.errors %}error{% endif %}">
                     <div class="form-field-wrapper">
                         <i class="icon fas fa-lock"></i>
                         {{ user_form.password }}
@@ -58,69 +59,22 @@
                     {% endfor %}
                 </div>
                 
-                <hr style="border: none; border-top: 1px solid #eee; margin: 1.5rem 0;">
-
-                <!-- FORMULARIO DE PERSONA -->
-                <div class="form-field">
+                <!-- Campo Confirmar Contraseña (con la clase .error dinámica) -->
+                <div class="form-field {% if user_form.password_confirm.errors %}error{% endif %}">
                     <div class="form-field-wrapper">
-                        <i class="icon fas fa-signature"></i>
-                        {{ persona_form.nombre }}
+                        <i class="icon fas fa-check-double"></i>
+                        {{ user_form.password_confirm }}
                     </div>
-                    {% for error in persona_form.nombre.errors %}
+                    {% for error in user_form.password_confirm.errors %}
                         <ul class="errorlist"><li>{{ error }}</li></ul>
                     {% endfor %}
                 </div>
-                
-                <div class="form-field">
-                    <div class="form-field-wrapper">
-                        <i class="icon fas fa-signature"></i>
-                        {{ persona_form.apellido }}
-                    </div>
-                    {% for error in persona_form.apellido.errors %}
-                        <ul class="errorlist"><li>{{ error }}</li></ul>
-                    {% endfor %}
-                </div>
-
-                <div class="form-field">
-                    <!-- El 'no-icon' en el form le quita el padding-left -->
-                    {{ persona_form.genero }}
-                    {% for error in persona_form.genero.errors %}
-                        <ul class="errorlist"><li>{{ error }}</li></ul>
-                    {% endfor %}
-                </div>
-
-                <div class="form-field">
-                    <!-- El 'no-icon' en el form le quita el padding-left -->
-                    {{ persona_form.fecha_nacimiento }}
-                    {% for error in persona_form.fecha_nacimiento.errors %}
-                        <ul class="errorlist"><li>{{ error }}</li></ul>
-                    {% endfor %}
-                </div>
-                
-                <div class="form-field">
-                    <div class="form-field-wrapper">
-                        <i class="icon fas fa-location-dot"></i>
-                        {{ persona_form.direccion }}
-                    </div>
-                    {% for error in persona_form.direccion.errors %}
-                        <ul class="errorlist"><li>{{ error }}</li></ul>
-                    {% endfor %}
-                </div>
-                
-                <div class="form-field">
-                    <div class="form-field-wrapper">
-                        <i class="icon fas fa-mobile-alt"></i>
-                        {{ persona_form.celular }}
-                    </div>
-                    {% for error in persona_form.celular.errors %}
-                        <ul class="errorlist"><li>{{ error }}</li></ul>
-                    {% endfor %}
-                </div>
+                <!-- FIN DE CAMPOS DE FORMULARIO -->
 
                 <button type="submit" class="btn-primary" style="margin-top: 1rem;">Registrarse</button>
 
-                <!-- Divisor de redes sociales (como en el login) -->
-                <div class="social-login-divider">o registrarse con</div>
+                <!-- Divisor de línea -->
+                <p class="social-login-divider">o registrarse con</p>
                 
                 <div class="social-icons">
                     <a href="#" aria-label="Registrarse con Google"><i class="fab fa-google"></i></a>

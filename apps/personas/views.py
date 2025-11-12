@@ -1,55 +1,81 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
-from django.db import transaction  # Para asegurar la creación de ambos
-# --- 1. Importamos el nuevo UserEditForm ---
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from .forms import UserForm, PersonaForm, UserEditForm
-from django.contrib.auth.decorators import login_required  # <-- 1. Importamos el decorador
-
 from .models import Persona
 
 
-# Vista de Home (solo renderiza el template)
+@login_required
 def home_view(request):
-    return render(request, 'home.html')
+    """
+    Vista para la página de inicio (después del login).
+    """
+    return render(request, "home.html")
 
 
-# Vista de Perfil
-@login_required  # Esto protege la vista, solo usuarios logueados pueden entrar
+def signup_view(request):
+    """
+    Vista para el registro de nuevos usuarios (simplificado).
+    """
+    if request.method == 'POST':
+        # --- NUEVA LÓGICA DE REGISTRO ---
+        user_form = UserForm(request.POST)
+
+        if user_form.is_valid():
+            # 1. Guardamos el User (con la contraseña hasheada)
+            new_user = user_form.save()
+            new_user.set_password(user_form.cleaned_data['password'])
+            new_user.save()
+
+            # 2. ¡Importante! Creamos la Persona vacía asociada al usuario
+            Persona.objects.create(user=new_user)
+
+            # 3. Logueamos al usuario automáticamente
+            login(request, new_user)
+
+            # 4. Mensaje de bienvenida
+            messages.success(request, '¡Bienvenido! Tu cuenta ha sido creada. Por favor, completa tu perfil.')
+
+            # 5. Redirigimos a la página de "Editar Perfil"
+            return redirect('profile_edit')
+        # Si el formulario no es válido, se renderizará de nuevo
+        # con los errores (el 'else' de abajo se encarga).
+
+    else:  # Si es un GET
+        user_form = UserForm()
+
+    # Preparamos el contexto (solo con user_form)
+    context = {
+        'user_form': user_form
+    }
+    return render(request, 'registration/signup.html', context)
+    # --- FIN DE LA NUEVA LÓGICA ---
+
+
+@login_required
 def profile_view(request):
     """
-    Muestra la página de perfil del usuario logueado.
+    Vista para mostrar el perfil del usuario.
     """
-    # Gracias a la relación 1 a 1 y el 'related_name',
-    # podemos acceder al perfil de la persona directamente desde el usuario.
-    try:
-        # Buscamos la persona asociada a este usuario
-        persona = request.user.persona
-    except Exception:
-        # Caso borde: un superusuario creado por consola podría no tener
-        # un objeto Persona asociado.
-        persona = None
-
+    # Usamos get_object_or_404 para manejar el caso de que la persona no exista
+    # (aunque ahora siempre debería existir)
+    persona = get_object_or_404(Persona, user=request.user)
     context = {
         'persona': persona
     }
-    # Renderizamos un NUEVO template que crearemos a continuación
     return render(request, 'personas/profile.html', context)
 
 
-# --- 3. AÑADIMOS LA NUEVA VISTA DE EDICIÓN DE PERFIL ---
 @login_required
 def profile_edit_view(request):
     """
-    Maneja la lógica para editar el perfil del usuario.
+    Vista para editar el perfil del usuario.
     """
-    try:
-        persona = request.user.persona
-    except Persona.DoesNotExist:
-        # Manejo por si acaso la persona no existe
-        persona = None
+    persona = get_object_or_404(Persona, user=request.user)
 
     if request.method == 'POST':
-        # Si es POST, procesamos los formularios con los datos enviados
+        # Pasamos 'instance' para que los formularios sepan qué objetos editar
         user_form = UserEditForm(request.POST, instance=request.user)
         persona_form = PersonaForm(request.POST, instance=persona)
 
@@ -57,13 +83,13 @@ def profile_edit_view(request):
             user_form.save()
             persona_form.save()
 
-            # (Opcional: añadir un mensaje de éxito con django.contrib.messages)
+            messages.success(request, '¡Tu perfil ha sido actualizado con éxito!')
 
-            # Redirigimos de vuelta a la vista de perfil
+            # Redirigimos al perfil para ver los cambios
             return redirect('profile')
 
-    else:
-        # Si es GET, mostramos los formularios con la data actual
+    else:  # Si es un GET
+        # Llenamos los formularios con la data actual
         user_form = UserEditForm(instance=request.user)
         persona_form = PersonaForm(instance=persona)
 
@@ -72,50 +98,3 @@ def profile_edit_view(request):
         'persona_form': persona_form
     }
     return render(request, 'personas/profile_edit.html', context)
-
-
-# Vista de Registro (Sign Up)
-@transaction.atomic  # Decorador para hacer la operación "atómica"
-def signup_view(request):
-    if request.method == 'POST':
-        # Si el método es POST, procesamos los datos del formulario
-        user_form = UserForm(request.POST)
-        persona_form = PersonaForm(request.POST)
-
-        # Validamos ambos formularios
-        if user_form.is_valid() and persona_form.is_valid():
-            # 1. Guardamos el User (pero no en la BD aún, solo en memoria)
-            user = user_form.save(commit=False)
-
-            # 2. Encriptamos la contraseña
-            user.set_password(user_form.cleaned_data['password'])
-
-            # 3. Guardamos el User en la BD
-            user.save()
-
-            # 4. Guardamos la Persona (pero no en la BD aún)
-            persona = persona_form.save(commit=False)
-
-            # 5. Vinculamos la Persona con el User recién creado
-            persona.user = user
-
-            # 6. Guardamos la Persona en la BD
-            persona.save()
-
-            # 7. Hacemos login automáticamente al nuevo usuario
-            login(request, user)
-
-            # 8. Redirigimos al Home
-            return redirect('home')
-    else:
-        # Si el método es GET, mostramos los formularios vacíos
-        user_form = UserForm()
-        persona_form = PersonaForm()
-
-    # Preparamos el contexto para el template
-    context = {
-        'user_form': user_form,
-        'persona_form': persona_form
-    }
-    # Renderizamos el template de registro
-    return render(request, 'registration/signup.html', context)
