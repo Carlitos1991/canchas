@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Mi Perfil{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg">
+    <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b pb-4">
+        Perfil de {{ user.username }}
+    </h2>
+    
+    {% if persona %}
+        <div class="space-y-4">
+            <div class="grid grid-cols-3 gap-4">
+                <strong class="text-gray-600 col-span-1">Nombre:</strong>
+                <span class="text-gray-800 col-span-2">{{ persona.nombre }}</span>
+            </div>
+            <div class="grid grid-cols-3 gap-4">
+                <strong class="text-gray-600 col-span-1">Apellido:</strong>
+                <span class="text-gray-800 col-span-2">{{ persona.apellido }}</span>
+            </div>
+            <div class="grid grid-cols-3 gap-4">
+                <strong class="text-gray-600 col-span-1">Email:</strong>
+                <span class="text-gray-800 col-span-2">{{ user.email }}</span>
+            </div>
+            <div class="grid grid-cols-3 gap-4">
+                <strong class="text-gray-600 col-span-1">Género:</strong>
+                <!-- Usamos .get_genero_display para mostrar el texto ("Masculino") en lugar de la letra ("M") -->
+                <span class="text-gray-800 col-span-2">{{ persona.get_genero_display }}</span>
+            </div>
+            <div class="grid grid-cols-3 gap-4">
+                <strong class="text-gray-600 col-span-1">Fecha de Nacimiento:</strong>
+                <!-- Formateamos la fecha -->
+                <span class="text-gray-800 col-span-2">{{ persona.fecha_nacimiento|date:"d \d\e F \d\e Y" }}</span>
+            </div>
+            <div class="grid grid-cols-3 gap-4">
+                <strong class="text-gray-600 col-span-1">Dirección:</strong>
+                <span class="text-gray-800 col-span-2">{{ persona.direccion|default:"No especificada" }}</span>
+            </div>
+            <div class="grid grid-cols-3 gap-4">
+                <strong class="text-gray-600 col-span-1">Celular:</strong>
+                <span class="text-gray-800 col-span-2">{{ persona.celular|default:"No especificado" }}</span>
+            </div>
+            <div class="grid grid-cols-3 gap-4">
+                <strong class="text-gray-600 col-span-1">Estado:</strong>
+                <span class="text-gray-800 col-span-2">
+                    {% if persona.estado %}
+                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                            Activo
+                        </span>
+                    {% else %}
+                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                            Inactivo
+                        </span>
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+        
+        <div class="mt-8 border-t pt-6">
+            <!-- Este botón es el siguiente paso: editar el perfil -->
+            <a href="#" class="py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition duration-300 opacity-50 cursor-not-allowed">
+                Editar Perfil (Próximamente)
+            </a>
+        </div>
+        
+    {% else %}
+        <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative" role="alert">
+            <strong class="font-bold">Información:</strong>
+            <span class="block sm:inline">Este usuario no tiene un perfil de "Persona" asociado.</span>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Página de Inicio{% endblock %}
+
+{% block content %}
+<div class="bg-white p-8 rounded-lg shadow-lg text-center">
+    <h1 class="text-4xl font-bold text-gray-800 mb-4">¡Bienvenido a Mi Proyecto!</h1>
+    
+    {% if user.is_authenticated %}
+        <p class="text-lg text-gray-600">
+            Has iniciado sesión como <strong>{{ user.username }}</strong>.
+        </p>
+        <p class="text-md text-gray-500 mt-2">
+            Tu nombre es: {{ user.persona.nombre }} {{ user.persona.apellido }}.
+        </p>
+    {% else %}
+        <p class="text-lg text-gray-600">
+            Por favor, <a href="{% url 'login' %}" class="text-indigo-500 hover:underline">inicia sesión</a> 
+            o <a href="{% url 'signup' %}" class="text-indigo-500 hover:underline">regístrate</a> 
+            para continuar.
+        </p>
+    {% endif %}
+</div>
+{% endblock %}

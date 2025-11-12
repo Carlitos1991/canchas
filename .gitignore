@@ -1,0 +1,43 @@
+# --- Archivo .gitignore para el proyecto Django ---
+
+# Archivos de entorno y secretos
+# ¡¡MUY IMPORTANTE!!
+.env
+.env.*
+
+# Entorno virtual
+venv/
+/venv/
+*.py[cod]
+__pycache__/
+.pyc
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos del IDE (PyCharm, VSCode)
+.idea/
+.vscode/
+
+# Logs
+*.log
+
+# Bases de datos locales
+*.sqlite3
+db.sqlite3
+
+# Archivos estáticos y media
+# Descomenta esto si no quieres subir tus estáticos (en producción es lo normal)
+# /static/
+# /media/
+
+# Archivos de dependencias (generados)
+*.egg-info
+.python-version
+.Python
+pip-wheel-metadata/
+
+# Archivos de testing
+.pytest_cache/
+.coverage
