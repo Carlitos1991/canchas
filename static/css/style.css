@@ -1,17 +1,12 @@
-/* --- Variables de Color (Inspiradas en la Imagen 3 - tonos teal/azul verdoso) --- */
+/* --- Paleta de Colores (Revertida a Azul-Verde/Teal) --- */
 :root {
-    /* --- CAMBIAMOS LA PALETA DE COLORES --- */
-    --primary-color: #55B8BA;   /* Un teal vibrante (Azul/Verde) */
-    --secondary-color: #8FD8D9; /* Un teal más claro */
-    --primary-color-rgb: 85, 184, 186; /* Componentes RGB de primary-color */
-    --accent-color: #4A9C9E;    /* Un teal oscuro para acentos */
-
-    --bg-light: #f0f8f8;        /* Fondo claro general (basado en teal) */
-    /* --- FIN DEL CAMBIO DE PALETA --- */
-
+    --primary-color: #55B8BA;   /* Teal vibrante (el de la "D") */
+    --secondary-color: #8FD8D9; /* Teal más claro */
+    --primary-color-rgb: 85, 184, 186; /* Componentes RGB */
+    --accent-color: #4A9C9E;    /* Teal oscuro para acentos */
+    --bg-light: #f0f8f8;        /* Fondo claro general */
     --text-dark: #333333;       /* Texto oscuro */
     --text-light: #ffffff;      /* Texto claro */
-    --text-secondary: #555;     /* Texto secundario (gris) */
     --border-color: #dddddd;    /* Color de borde */
     --shadow-light: rgba(0, 0, 0, 0.1); /* Sombra ligera */
 }
@@ -22,22 +17,13 @@ body {
     background-color: var(--bg-light);
     color: var(--text-dark);
     margin: 0;
+    padding: 0;
     line-height: 1.6;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
-
-main {
-    flex-grow: 1; /* Empuja el footer hacia abajo */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
 }
 
 h1, h2, h3, h4, h5, h6 {
     color: var(--text-dark);
+    margin-top: 0;
     margin-bottom: 0.5em;
     font-weight: 600;
 }
@@ -51,69 +37,91 @@ a:hover {
     text-decoration: underline;
 }
 
-/* --- Navbar (Simple) --- */
-.navbar {
-    width: 100%;
-    background-color: #ffffff;
-    box-shadow: 0 2px 5px var(--shadow-light);
-    padding: 1rem 2rem;
+/* --- Contenedor Principal --- */
+/* Esta clase envuelve todo el contenido (login, signup, profile, etc.) */
+.main-content {
+    display: flex;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
     box-sizing: border-box;
+}
+
+/* --- Navbar (Barra de Navegación) --- */
+.navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background-color: #ffffff;
+    padding: 0.8rem 2rem;
+    box-shadow: 0 2px 5px var(--shadow-light);
+    border-bottom: 1px solid var(--border-color);
 }
+
 .navbar-brand {
     font-size: 1.5rem;
-    font-weight: bold;
+    font-weight: 700;
     color: var(--primary-color);
 }
+
+.navbar-brand:hover {
+    text-decoration: none;
+    color: var(--accent-color);
+}
+
 .navbar-links {
     display: flex;
-    gap: 1.5rem;
     align-items: center;
+    gap: 1.5rem;
 }
-.navbar-links a, .navbar-links form button {
-    font-size: 1rem;
+
+.navbar-links span {
+    color: #555;
+}
+
+.navbar-links a {
+    color: #555;
     font-weight: 500;
-    color: var(--text-secondary);
-    text-decoration: none;
     transition: color 0.3s ease;
 }
-.navbar-links a:hover, .navbar-links form button:hover {
+
+.navbar-links a:hover {
     color: var(--primary-color);
-}
-.navbar-links form {
-    margin: 0;
-}
-.navbar-links .btn-logout {
-    background: var(--primary-color);
-    color: var(--text-light);
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: background-color 0.3s ease;
-}
-.navbar-links .btn-logout:hover {
-    background: var(--accent-color);
-    color: var(--text-light);
+    text-decoration: none;
 }
 
-/* --- Contenedor General (para profile, edit, etc.) --- */
-.content-container {
-    background-color: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px var(--shadow-light);
-    padding: 2.5rem;
-    max-width: 800px;
-    width: 100%;
-    margin: 2rem auto;
+/* Botón de Logout en la Navbar */
+.btn-logout {
+    background-color: transparent;
+    border: 1px solid #d9534f;
+    color: #d9534f;
+    padding: 0.4rem 0.8rem;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
+
+.btn-logout:hover {
+    background-color: #d9534f;
+    color: #ffffff;
+}
+
 
 /* --- Formulario General --- */
+/* Esta clase se usa en login, signup, y profile-edit */
+.form-container {
+    background-color: #ffffff;
+    border-radius: 15px; /* Bordes más redondeados */
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
 .form-field {
     margin-bottom: 1.25rem;
+    position: relative;
 }
 
 .form-field-wrapper {
@@ -129,7 +137,6 @@ a:hover {
     color: var(--text-dark);
 }
 
-/* Estilos de inputs (basados en tu 1.png - borde solo abajo) */
 .form-field input[type="text"],
 .form-field input[type="email"],
 .form-field input[type="password"],
@@ -138,41 +145,40 @@ a:hover {
 .form-field select,
 .form-field textarea {
     width: 100%;
-    padding: 0.75rem 0.5rem; /* Menos padding lateral */
-    padding-left: 2.5rem; /* Espacio para icono */
-    border: none; /* Sin borde */
-    border-bottom: 2px solid var(--border-color); /* Borde solo abajo */
-    border-radius: 0; /* Sin radio */
+    padding: 0.75rem 1rem;
+    padding-left: 2.5rem; /* Espacio para el icono */
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
     font-size: 1rem;
     box-sizing: border-box;
-    transition: border-color 0.3s ease;
-    background-color: transparent; /* Fondo transparente */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Quitamos el espacio para icono en inputs que no lo tienen (como en el form de Persona) */
+/* Campos sin icono (como en profile_edit) */
 .form-field input.no-icon,
 .form-field select.no-icon,
 .form-field textarea.no-icon {
-    padding-left: 0.5rem;
+    padding-left: 1rem;
 }
-
 
 .form-field input:focus,
 .form-field select:focus,
 .form-field textarea:focus {
     outline: none;
     border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb), 0.25);
 }
 
+/* Iconos en campos */
 .form-field-wrapper .icon {
     position: absolute;
-    left: 0.5rem;
-    color: var(--text-secondary); /* Iconos grises como en la imagen */
-    font-size: 1.1rem;
+    left: 0.75rem;
+    color: var(--primary-color);
+    font-size: 1.1rem; /* Un poco más pequeño */
     pointer-events: none;
 }
 
-/* Botón Primario (como el de "Iniciar Sesion") */
+/* --- Botones --- */
 .btn-primary {
     display: block;
     width: 100%;
@@ -184,169 +190,77 @@ a:hover {
     font-size: 1.1rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
     text-align: center;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .btn-primary:hover {
     background-color: var(--accent-color);
     transform: translateY(-1px);
+    text-decoration: none;
+    color: var(--text-light);
 }
 
-/* Botón Secundario (como el de "Registrarse") */
+/* Botón secundario (borde) */
 .btn-secondary {
-    display: inline-block; /* No full-width */
-    padding: 0.75rem 2rem;
+    display: inline-block; /* Cambiado de 'block' */
+    padding: 0.6rem 1.2rem; /* --- TU CAMBIO: Padding Reducido --- */
     background-color: transparent;
     color: var(--text-light);
     border: 1px solid var(--text-light);
     border-radius: 5px;
-    font-size: 1rem;
+    font-size: 1rem; /* Ligeramente más pequeño */
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.3s ease, border-color 0.3s ease;
     text-align: center;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .btn-secondary:hover {
     background-color: rgba(255, 255, 255, 0.1);
-}
-
-/* --- ESTILOS ESPECÍFICOS PARA EL LOGIN (1.png) --- */
-
-.login-container {
-    display: flex;
-    max-width: 900px; /* Ancho total del contenedor */
-    width: 100%;
-    background-color: #ffffff;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px var(--shadow-light);
-    overflow: hidden; /* Para los bordes redondeados de los paneles */
-}
-
-.login-panel {
-    padding: 3rem;
-    box-sizing: border-box;
-}
-
-/* Panel Izquierdo (Bienvenida) */
-.login-panel-left {
-    width: 45%;
-    background-color: var(--primary-color);
-    color: var(--text-light);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    /* --- CAMBIO: Curva solo en el lado derecho para la forma de "D" --- */
-    /* (top-left, top-right, bottom-right, bottom-left) */
-    border-radius: 20px 100px 100px 20px;
-    position: relative;
-    overflow: hidden;
-}
-
-/* --- ELIMINAMOS EL SIMULADOR DE CURVA --- */
-/* .login-panel-left::before { ... } */
-
-
-.login-panel-left h2 {
-    color: var(--text-light);
-    font-size: 2.2rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-}
-
-.login-panel-left p {
-    font-size: 1.1rem;
-    margin-bottom: 2rem;
-}
-
-/* Panel Derecho (Formulario) */
-.login-panel-right {
-    width: 55%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.login-panel-right h2 {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: var(--text-dark);
-    text-align: left;
-    margin-bottom: 2rem;
-}
-
-.login-panel-right .form-field {
-    margin-bottom: 2rem; /* Más espacio en el login */
-}
-
-.login-options {
-    text-align: center;
-    margin-top: 1.5rem;
-}
-
-.login-options a {
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-}
-
-.login-options .social-title {
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-    margin-top: 2rem;
-    margin-bottom: 1rem;
-    position: relative;
-}
-
-/* Líneas a los lados de "o Iniciar Sesion..." */
-.login-options .social-title::before,
-.login-options .social-title::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    width: 30%;
-    height: 1px;
-    background-color: var(--border-color);
-}
-.login-options .social-title::before {
-    left: 0;
-}
-.login-options .social-title::after {
-    right: 0;
-}
-
-.social-icons {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-}
-
-.social-icons a {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border: 1px solid var(--border-color);
-    border-radius: 5px;
-    color: var(--text-secondary);
-    font-size: 1.3rem;
-    transition: all 0.3s ease;
-}
-
-.social-icons a:hover {
-    color: var(--primary-color);
-    border-color: var(--primary-color);
+    border-color: var(--text-light);
     text-decoration: none;
+    color: var(--text-light);
 }
 
-/* Estilos para errores de formulario */
+/* Otros botones */
+.btn-edit {
+    display: inline-block;
+    padding: 0.7rem 1.5rem;
+    background-color: var(--accent-color);
+    color: var(--text-light);
+    border: none;
+    border-radius: 5px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+.btn-edit:hover {
+    background-color: var(--primary-color);
+    text-decoration: none;
+    color: var(--text-light);
+}
+
+.btn-cancel {
+    display: inline-block;
+    padding: 0.7rem 1.5rem;
+    background-color: #777;
+    color: var(--text-light);
+    border: none;
+    border-radius: 5px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+.btn-cancel:hover {
+    background-color: #555;
+    text-decoration: none;
+    color: var(--text-light);
+}
+
+/* --- Errores y Ayuda --- */
 .errorlist {
     color: #e74c3c;
     font-size: 0.85rem;
-    margin-top: 0.25rem;
+    margin-top: -0.75rem; /* Más cerca del campo */
     margin-bottom: 1rem;
     list-style-type: none;
     padding-left: 0;
@@ -362,105 +276,317 @@ a:hover {
     margin-top: 0.25rem;
 }
 
-/* --- AÑADIMOS ESTILOS PARA PROFILE.HTML --- */
 
+/* --- Componentes Específicos del Login --- */
+.login-container {
+    display: flex;
+    width: 100%;
+    max-width: 900px;
+    margin: 0;
+    /* Sombra y fondo vienen de .form-container */
+}
+
+/* Panel genérico (para resetear) */
+.login-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2rem;
+    box-sizing: border-box;
+}
+
+/* Panel izquierdo (el de la "D") */
+.login-panel-left {
+    flex-basis: 40%;
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    align-items: center;
+    text-align: center;
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+    border-top-right-radius: 100px; /* Forma de D */
+    border-bottom-right-radius: 100px;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 1;
+}
+
+.login-panel-left h2 {
+    color: var(--text-light);
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.login-panel-left p {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Panel derecho (formulario) */
+.login-panel-right {
+    flex-basis: 60%;
+    padding: 3rem;
+    background-color: #ffffff;
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+    /* Curva para coincidir con la D */
+    border-top-left-radius: 100px;
+    border-bottom-left-radius: 100px;
+    /* Corregir el "hueco" de la D */
+    margin-left: -80px;
+    padding-left: 100px; /* Compensar el margen negativo */
+}
+
+.login-panel-right h2 {
+    text-align: center;
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+    color: var(--text-dark);
+}
+
+.forgot-password {
+    text-align: right;
+    margin-top: -0.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+
+.forgot-password a {
+    color: var(--accent-color);
+}
+
+.forgot-password a:hover {
+    text-decoration: underline;
+}
+
+/* Separador para redes sociales (CORREGIDO) */
+.social-login-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: #aaa;
+    margin: 2rem 0;
+    font-size: 0.9rem;
+}
+
+.social-login-divider::before,
+.social-login-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #eee;
+}
+
+.social-login-divider:not(:empty)::before {
+    margin-right: .75em;
+}
+
+.social-login-divider:not(:empty)::after {
+    margin-left: .75em;
+}
+
+/* Iconos redes sociales */
+.social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+.social-icons a {
+    color: var(--accent-color);
+    border: 1px solid #eee;
+    padding: 0.5rem;
+    width: 25px; /* Ancho fijo */
+    height: 25px; /* Alto fijo */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+}
+
+.social-icons a:hover {
+    color: var(--text-light);
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    text-decoration: none;
+}
+
+
+/* --- NUEVO: Componentes Específicos del Sign Up (Layout 2.png) --- */
+
+.signup-container {
+    display: flex;
+    width: 100%;
+    max-width: 900px;
+    margin: 0;
+    /* Sombra y fondo vienen de .form-container */
+}
+
+/* Panel genérico (para resetear) */
+.signup-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2rem;
+    box-sizing: border-box;
+}
+
+/* Panel izquierdo (formulario) */
+.signup-panel-left {
+    flex-basis: 60%;
+    padding: 3rem;
+    background-color: #ffffff;
+    /* Curva para coincidir con la D (invertida) */
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+    border-top-right-radius: 100px;
+    border-bottom-right-radius: 100px;
+    /* Corregir el "hueco" de la D */
+    margin-right: -80px;
+    padding-right: 100px; /* Compensar el margen negativo */
+}
+
+.signup-panel-left h2 {
+    text-align: center;
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+    color: var(--text-dark);
+}
+
+/* Campos de formulario en Sign Up (sin label, solo placeholder) */
+.signup-panel-left .form-field label {
+    display: none; /* Ocultamos el label */
+}
+
+/* Panel derecho (el de la "D" invertida) */
+.signup-panel-right {
+    flex-basis: 40%;
+    background-color: var(--primary-color); /* Color TEAL */
+    color: var(--text-light);
+    align-items: center;
+    text-align: center;
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+    border-top-left-radius: 100px; /* Forma de D invertida */
+    border-bottom-left-radius: 100px;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 1;
+}
+
+.signup-panel-right h2 {
+    color: var(--text-light);
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.signup-panel-right p {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+}
+
+
+/* --- Estilos para Home, Profile, Profile Edit --- */
+.content-container {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px var(--shadow-light);
+    padding: 2.5rem;
+    margin: 2rem auto; /* Centrado */
+    width: 100%;
+    max-width: 900px;
+    box-sizing: border-box;
+}
+
+/* Grid del Perfil */
 .profile-grid {
     display: grid;
-    grid-template-columns: 1fr 2fr; /* Columna de label, columna de data */
+    grid-template-columns: 180px 1fr; /* Columna de label + Columna de dato */
     gap: 1.25rem;
-    max-width: 600px;
+    margin-bottom: 2rem;
 }
 
 .profile-label {
     font-weight: 600;
-    color: var(--text-secondary);
+    color: #555;
+    text-align: right;
 }
 
 .profile-data {
-    color: var(--text-dark);
+    font-size: 1.05rem;
 }
 
+/* Pastillas de estado */
 .profile-status {
     padding: 0.25rem 0.75rem;
     border-radius: 15px;
     font-size: 0.9rem;
     font-weight: 500;
-    display: inline-block;
 }
-
 .profile-status-active {
-    background-color: #d4edda;
-    color: #155724;
+    background-color: #e0f8f0;
+    color: #1a9c6a;
 }
-
 .profile-status-inactive {
-    background-color: #f8d7da;
-    color: #721c24;
+    background-color: #fbebee;
+    color: #d9534f;
 }
 
+/* Botones en Perfil */
 .profile-actions {
     margin-top: 2rem;
-    border-top: 1px solid var(--border-color);
-    padding-top: 2rem;
+    text-align: right;
 }
 
-.btn-edit {
-    display: inline-block;
-    padding: 0.75rem 1.5rem;
-    background-color: var(--primary-color);
-    color: var(--text-light);
-    border: none;
-    border-radius: 5px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-.btn-edit:hover {
-    background-color: var(--accent-color);
-    text-decoration: none;
-}
 
-.btn-cancel {
-    display: inline-block;
-    padding: 0.75rem 1.5rem;
-    background-color: #f0f0f0;
-    color: var(--text-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: 5px;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-right: 1rem;
-}
-.btn-cancel:hover {
-    background-color: #e0e0e0;
-    text-decoration: none;
-}
-
-/* --- FIN DE ESTILOS DE PROFILE --- */
-
-
-/* Media Query para pantallas pequeñas */
-@media (max-width: 768px) {
-    .login-container {
+/* --- Media Queries (Responsivo) --- */
+@media (max-width: 850px) {
+    .login-container,
+    .signup-container {
         flex-direction: column;
-        max-width: 450px;
+        max-width: 500px;
         margin: 1rem;
+        box-shadow: 0 4px 15px var(--shadow-light);
     }
-    .login-panel-left, .login-panel-right {
+
+    .login-panel-left,
+    .login-panel-right,
+    .signup-panel-left,
+    .signup-panel-right {
+        flex-basis: auto; /* Resetea la base */
         width: 100%;
-        border-radius: 0;
+        margin-left: 0;
+        margin-right: 0;
+        padding-left: 2rem; /* Resetea el padding de compensación */
+        padding-right: 2rem;
     }
+
+    /* Quitar la forma de "D" en móvil */
     .login-panel-left {
-        border-radius: 20px 20px 0 0;
-        padding: 2rem;
+        border-radius: 15px 15px 0 0;
     }
     .login-panel-right {
-        padding: 2rem;
+        border-radius: 0 0 15px 15px;
     }
-    .login-panel-left::before {
-        display: none; /* Ocultar la forma curva en móvil */
+
+    .signup-panel-left {
+        order: 1; /* El formulario va primero */
+        border-radius: 15px 15px 0 0;
+    }
+    .signup-panel-right {
+        order: 2; /* El panel de bienvenida va segundo */
+        border-radius: 0 0 15px 15px;
+    }
+
+    .navbar {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+    }
+    .navbar-links {
+        flex-direction: column;
+        gap: 1rem;
     }
 }

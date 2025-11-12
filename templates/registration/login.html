@@ -3,70 +3,84 @@
 {% block title %}Iniciar Sesión{% endblock %}
 
 {% block content %}
-<div class="login-container">
-    
-    <!-- Panel Izquierdo (Bienvenida) -->
-    <div class="login-panel login-panel-left">
-        <h2>¡Hola, Bienvenido!</h2>
-        <p>¿No tienes una Cuenta?</p>
-        <a href="{% url 'signup' %}" class="btn-secondary">Registrarse</a>
-    </div>
-    
-    <!-- Panel Derecho (Formulario) -->
-    <div class="login-panel login-panel-right">
-        <h2>Iniciar Sesion</h2>
-        
-        <form method="post">
-            {% csrf_token %}
-            
-            <!-- Mostramos errores generales (ej. "usuario o clave incorrecta") -->
-            {% if form.non_field_errors %}
-                <div class="errorlist">
-                    {% for error in form.non_field_errors %}
-                        <li>{{ error }}</li>
+<!--
+  Usamos tu versión de HTML.
+  He añadido la clase 'main-content' que envuelve todo para centrarlo
+  y 'form-container' para el fondo blanco y la sombra.
+-->
+<div class="main-content">
+    <div class="login-container form-container">
+
+        <!-- Panel Izquierdo (Bienvenida) -->
+        <!-- Aseguramos que las clases sean 'login-panel' y 'login-panel-left' -->
+        <div class="login-panel login-panel-left">
+            <h2>¡Hola, Bienvenido!</h2>
+            <p>¿No tienes una Cuenta?</p>
+            <a href="{% url 'signup' %}" class="btn-secondary">Registrarse</a>
+        </div>
+
+        <!-- Panel Derecho (Formulario) -->
+        <div class="login-panel login-panel-right">
+            <h2>Iniciar Sesion</h2>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <!-- Mostramos errores generales (ej. "usuario o clave incorrecta") -->
+                {% if form.non_field_errors %}
+                    <ul class="errorlist">
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+
+                <!-- Campo Usuario -->
+                <div class="form-field">
+                    <label for="{{ form.username.id_for_label }}">Usuario</label>
+                    <div class="form-field-wrapper">
+                        <i class="icon fas fa-user"></i> <!-- Cambiado a fas fa-user (FontAwesome 6) -->
+                        {{ form.username }}
+                    </div>
+                    {% for error in form.username.errors %}
+                        <ul class="errorlist"><li>{{ error }}</li></ul>
                     {% endfor %}
                 </div>
-            {% endif %}
 
-            <!-- Campo Usuario -->
-            <div class="form-field">
-                <label for="{{ form.username.id_for_label }}">Usuario</label>
-                <div class="form-field-wrapper">
-                    <i class="icon fa-solid fa-user"></i>
-                    {{ form.username }}
+                <!-- Campo Contraseña -->
+                <div class="form-field">
+                    <label for="{{ form.password.id_for_label }}">Password</label>
+                    <div class="form-field-wrapper">
+                        <i class="icon fas fa-lock"></i> <!-- Cambiado a fas fa-lock (FontAwesome 6) -->
+                        {{ form.password }}
+                    </div>
+                    {% for error in form.password.errors %}
+                        <ul class="errorlist"><li>{{ error }}</li></ul>
+                    {% endfor %}
                 </div>
-                {% for error in form.username.errors %}
-                    <div class="errorlist"><li>{{ error }}</li></div>
-                {% endfor %}
-            </div>
 
-            <!-- Campo Contraseña -->
-            <div class="form-field">
-                <label for="{{ form.password.id_for_label }}">Password</label>
-                <div class="form-field-wrapper">
-                    <i class="icon fa-solid fa-lock"></i>
-                    {{ form.password }}
+                <!-- Muevo el link de "olvidaste..." aquí para que coincida con la imagen -->
+                <div class="forgot-password">
+                    <a href="#">¿Olvidaste tu contraseña?</a>
                 </div>
-                {% for error in form.password.errors %}
-                    <div class="errorlist"><li>{{ error }}</li></div>
-                {% endfor %}
-            </div>
-            
-            <button type="submit" class="btn-primary">Iniciar Sesion</button>
 
-            <div class="login-options">
-                <a href="#">¿Olvidaste tu contraseña?</a>
-                
-                <p class="social-title">o Iniciar Sesion con las Plataformas Sociales</p>
+                <button type="submit" class="btn-primary">Iniciar Sesión</button>
+
+                <!-- Usamos 'social-login-divider' que SÍ tiene estilo en el CSS -->
+                <div class="social-login-divider">
+                    o Iniciar Sesión con las Plataformas Sociales
+                </div>
+
                 <div class="social-icons">
-                    <a href="#" aria-label="Iniciar sesión con Google"><i class="fa-brands fa-google"></i></a>
-                    <a href="#" aria-label="Iniciar sesión con Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-                    <a href="#" aria-label="Iniciar sesión con Github"><i class="fa-brands fa-github"></i></a>
-                    <a href="#" aria-label="Iniciar sesión con Linkedin"><i class="fa-brands fa-linkedin-in"></i></a>
+                    <!-- Usamos 'fab' (FontAwesome 6) en lugar de 'fa-brands' -->
+                    <a href="#" aria-label="Iniciar sesión con Google"><i class="fab fa-google"></i></a>
+                    <a href="#" aria-label="Iniciar sesión con Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" aria-label="Iniciar sesión con Github"><i class="fab fa-github"></i></a>
+                    <a href="#" aria-label="Iniciar sesión con Linkedin"><i class="fab fa-linkedin-in"></i></a>
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
+
     </div>
-    
 </div>
 {% endblock %}

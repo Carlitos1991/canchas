@@ -5,51 +5,63 @@ from .models import Persona
 
 class UserForm(forms.ModelForm):
     """
-    Formulario para la creación de un User (registro).
+    Formulario para el modelo User de Django.
+    Se usa en el registro.
     """
-    # Hacemos que 'password' sea un PasswordInput
-    password = forms.CharField(widget=forms.PasswordInput)
+    # Sobrescribimos el campo password para usar PasswordInput
+    password = forms.CharField(
+        widget=forms.PasswordInput(
+            attrs={'placeholder': 'Contraseña'}  # Placeholder para el nuevo diseño
+        )
+    )
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password']
-        # Ya no necesitamos widgets para añadir clases
-
-
-class UserEditForm(forms.ModelForm):
-    """
-    Formulario para editar los datos básicos del User (email y username).
-    """
-
-    class Meta:
-        model = User
-        fields = ['username', 'email']
-        # Ya no necesitamos widgets
+        fields = ('username', 'email', 'password')
+        # Añadimos widgets para los placeholders
+        widgets = {
+            'username': forms.TextInput(attrs={'placeholder': 'Usuario'}),
+            'email': forms.EmailInput(attrs={'placeholder': 'Email'}),
+        }
 
 
 class PersonaForm(forms.ModelForm):
     """
-    Formulario para los datos del modelo Persona.
+    Formulario para el modelo Persona.
+    Se usa en el registro.
     """
-
-    # Opciones de Género
-    GENERO_CHOICES = [
-        ('', 'Selecciona tu género'),
-        ('M', 'Masculino'),
-        ('F', 'Femenino'),
-        ('O', 'Otro'),
-    ]
-
-    # Sobreescribimos el campo genero para usar 'choices'
-    genero = forms.ChoiceField(choices=GENERO_CHOICES)
-
-    # Hacemos que 'fecha_nacimiento' sea un DateInput
-    fecha_nacimiento = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    # Hacemos que la fecha sea un Input de tipo "text" para el placeholder
+    # y le pedimos al navegador que muestre un Date Picker si puede
+    fecha_nacimiento = forms.DateField(
+        widget=forms.DateInput(
+            attrs={
+                'placeholder': 'Fecha de Nacimiento (YYYY-MM-DD)',
+                'type': 'date'  # HTML5 date picker
+            }
+        )
+    )
 
     class Meta:
         model = Persona
-        fields = ['nombre', 'apellido', 'genero', 'fecha_nacimiento', 'estado', 'direccion', 'celular']
-        # Quitamos todos los widgets que ponían clases de Tailwind
+        # Excluimos los campos que no debe llenar el usuario
+        exclude = ('user', 'estado', 'creado_en', 'actualizado_en')
+
+        # Añadimos placeholders para el nuevo diseño
         widgets = {
-            'estado': forms.CheckboxInput(),  # Usar un checkbox simple
+            'nombre': forms.TextInput(attrs={'placeholder': 'Nombre'}),
+            'apellido': forms.TextInput(attrs={'placeholder': 'Apellido'}),
+            'genero': forms.Select(attrs={'class': 'no-icon'}),  # 'no-icon' para alinear el padding
+            'direccion': forms.TextInput(attrs={'placeholder': 'Dirección (Opcional)'}),
+            'celular': forms.TextInput(attrs={'placeholder': 'Celular (Opcional)'}),
         }
+
+
+class UserEditForm(forms.ModelForm):
+    """
+    Formulario para EDITAR el User.
+    No se puede editar la contraseña desde aquí.
+    """
+
+    class Meta:
+        model = User
+        fields = ('username', 'email')  # Solo estos campos
