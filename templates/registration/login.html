@@ -1,43 +1,72 @@
-{% extends "registration/../base.html" %}
+{% extends "base.html" %}
 
 {% block title %}Iniciar Sesión{% endblock %}
 
 {% block content %}
-<div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-lg">
-    <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Iniciar Sesión</h2>
+<div class="login-container">
     
-    {% if form.errors %}
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-            <strong class="font-bold">Error:</strong>
-            <span class="block sm:inline">Tu usuario y contraseña no coinciden. Inténtalo de nuevo.</span>
-        </div>
-    {% endif %}
+    <!-- Panel Izquierdo (Bienvenida) -->
+    <div class="login-panel login-panel-left">
+        <h2>¡Hola, Bienvenido!</h2>
+        <p>¿No tienes una Cuenta?</p>
+        <a href="{% url 'signup' %}" class="btn-secondary">Registrarse</a>
+    </div>
+    
+    <!-- Panel Derecho (Formulario) -->
+    <div class="login-panel login-panel-right">
+        <h2>Iniciar Sesion</h2>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- Mostramos errores generales (ej. "usuario o clave incorrecta") -->
+            {% if form.non_field_errors %}
+                <div class="errorlist">
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </div>
+            {% endif %}
 
-    <form method="post" action="{% url 'login' %}" class="space-y-4">
-        {% csrf_token %}
-        
-        <div>
-            <label for="id_username" class="block text-sm font-medium text-gray-700">Usuario:</label>
-            <input type="text" name="username" autofocus autocapitalize="none" autocomplete="username" maxlength="150" required id="id_username" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-        </div>
-        
-        <div>
-            <label for="id_password" class="block text-sm font-medium text-gray-700">Contraseña:</label>
-            <input type="password" name="password" autocomplete="current-password" required id="id_password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-        </div>
-        
-        <div>
-            <button type="submit" class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                Entrar
-            </button>
-        </div>
-    </form>
+            <!-- Campo Usuario -->
+            <div class="form-field">
+                <label for="{{ form.username.id_for_label }}">Usuario</label>
+                <div class="form-field-wrapper">
+                    <i class="icon fa-solid fa-user"></i>
+                    {{ form.username }}
+                </div>
+                {% for error in form.username.errors %}
+                    <div class="errorlist"><li>{{ error }}</li></div>
+                {% endfor %}
+            </div>
+
+            <!-- Campo Contraseña -->
+            <div class="form-field">
+                <label for="{{ form.password.id_for_label }}">Password</label>
+                <div class="form-field-wrapper">
+                    <i class="icon fa-solid fa-lock"></i>
+                    {{ form.password }}
+                </div>
+                {% for error in form.password.errors %}
+                    <div class="errorlist"><li>{{ error }}</li></div>
+                {% endfor %}
+            </div>
+            
+            <button type="submit" class="btn-primary">Iniciar Sesion</button>
+
+            <div class="login-options">
+                <a href="#">¿Olvidaste tu contraseña?</a>
+                
+                <p class="social-title">o Iniciar Sesion con las Plataformas Sociales</p>
+                <div class="social-icons">
+                    <a href="#" aria-label="Iniciar sesión con Google"><i class="fa-brands fa-google"></i></a>
+                    <a href="#" aria-label="Iniciar sesión con Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#" aria-label="Iniciar sesión con Github"><i class="fa-brands fa-github"></i></a>
+                    <a href="#" aria-label="Iniciar sesión con Linkedin"><i class="fa-brands fa-linkedin-in"></i></a>
+                </div>
+            </div>
+        </form>
+    </div>
     
-    <p class="text-center text-sm text-gray-500 mt-6">
-        ¿No tienes una cuenta? 
-        <a href="{% url 'signup' %}" class="font-medium text-indigo-600 hover:text-indigo-500">
-            Regístrate aquí
-        </a>
-    </p>
 </div>
 {% endblock %}

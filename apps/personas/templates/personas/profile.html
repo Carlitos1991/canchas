@@ -3,70 +3,63 @@
 {% block title %}Mi Perfil{% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg">
-    <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b pb-4">
+<!-- Reemplazamos todo el div de Tailwind por .content-container -->
+<div class="content-container" style="max-width: 700px;">
+    <h2 style="font-size: 1.8rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 2rem;">
         Perfil de {{ user.username }}
     </h2>
     
     {% if persona %}
-        <div class="space-y-4">
-            <div class="grid grid-cols-3 gap-4">
-                <strong class="text-gray-600 col-span-1">Nombre:</strong>
-                <span class="text-gray-800 col-span-2">{{ persona.nombre }}</span>
-            </div>
-            <div class="grid grid-cols-3 gap-4">
-                <strong class="text-gray-600 col-span-1">Apellido:</strong>
-                <span class="text-gray-800 col-span-2">{{ persona.apellido }}</span>
-            </div>
-            <div class="grid grid-cols-3 gap-4">
-                <strong class="text-gray-600 col-span-1">Email:</strong>
-                <span class="text-gray-800 col-span-2">{{ user.email }}</span>
-            </div>
-            <div class="grid grid-cols-3 gap-4">
-                <strong class="text-gray-600 col-span-1">Género:</strong>
-                <!-- Usamos .get_genero_display para mostrar el texto ("Masculino") en lugar de la letra ("M") -->
-                <span class="text-gray-800 col-span-2">{{ persona.get_genero_display }}</span>
-            </div>
-            <div class="grid grid-cols-3 gap-4">
-                <strong class="text-gray-600 col-span-1">Fecha de Nacimiento:</strong>
-                <!-- Formateamos la fecha -->
-                <span class="text-gray-800 col-span-2">{{ persona.fecha_nacimiento|date:"d \d\e F \d\e Y" }}</span>
-            </div>
-            <div class="grid grid-cols-3 gap-4">
-                <strong class="text-gray-600 col-span-1">Dirección:</strong>
-                <span class="text-gray-800 col-span-2">{{ persona.direccion|default:"No especificada" }}</span>
-            </div>
-            <div class="grid grid-cols-3 gap-4">
-                <strong class="text-gray-600 col-span-1">Celular:</strong>
-                <span class="text-gray-800 col-span-2">{{ persona.celular|default:"No especificado" }}</span>
-            </div>
-            <div class="grid grid-cols-3 gap-4">
-                <strong class="text-gray-600 col-span-1">Estado:</strong>
-                <span class="text-gray-800 col-span-2">
-                    {% if persona.estado %}
-                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                            Activo
-                        </span>
-                    {% else %}
-                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                            Inactivo
-                        </span>
-                    {% endif %}
-                </span>
+        <!-- Usamos el nuevo grid de CSS -->
+        <div class="profile-grid">
+            
+            <div class="profile-label">Nombre:</div>
+            <div class="profile-data">{{ persona.nombre }}</div>
+
+            <div class="profile-label">Apellido:</div>
+            <div class="profile-data">{{ persona.apellido }}</div>
+
+            <div class="profile-label">Email:</div>
+            <div class="profile-data">{{ user.email }}</div>
+
+            <div class="profile-label">Género:</div>
+            <div class="profile-data">{{ persona.get_genero_display }}</div>
+
+            <div class="profile-label">Fecha de Nacimiento:</div>
+            <div class="profile-data">{{ persona.fecha_nacimiento|date:"d \d\e F \d\e Y" }}</div>
+
+            <div class="profile-label">Dirección:</div>
+            <div class="profile-data">{{ persona.direccion|default:"No especificada" }}</div>
+
+            <div class="profile-label">Celular:</div>
+            <div class="profile-data">{{ persona.celular|default:"No especificado" }}</div>
+
+            <div class="profile-label">Estado:</div>
+            <div class="profile-data">
+                {% if persona.estado %}
+                    <span class="profile-status profile-status-active">
+                        Activo
+                    </span>
+                {% else %}
+                    <span class="profile-status profile-status-inactive">
+                        Inactivo
+                    </span>
+                {% endif %}
             </div>
         </div>
         
-        <div class="mt-8 border-t pt-6">
-            <!-- Este botón es el siguiente paso: editar el perfil -->
-            <a href="#" class="py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition duration-300 opacity-50 cursor-not-allowed">
-                Editar Perfil (Próximamente)
+        <!-- Usamos las nuevas clases de botones -->
+        <div class="profile-actions">
+            <a href="{% url 'profile_edit' %}" class="btn-edit">
+                Editar Perfil
             </a>
         </div>
         
     {% else %}
-        <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative" role="alert">
-            <strong class="font-bold">Información:</strong>
-            <span class="block sm:inline">Este usuario no tiene un perfil de "Persona" asociado.</span>
+        <!-- (Estilo simple para el caso borde) -->
+        <div style="background-color: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 1rem; border-radius: 5px;">
+            <strong style="font-weight: bold;">Información:</strong>
+            <span>Este usuario no tiene un perfil de "Persona" asociado.</span>
         </div>
     {% endif %}
 </div>

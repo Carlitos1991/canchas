@@ -1,8 +1,11 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.db import transaction  # Para asegurar la creación de ambos
-from .forms import UserForm, PersonaForm
+# --- 1. Importamos el nuevo UserEditForm ---
+from .forms import UserForm, PersonaForm, UserEditForm
 from django.contrib.auth.decorators import login_required  # <-- 1. Importamos el decorador
+
+from .models import Persona
 
 
 # Vista de Home (solo renderiza el template)
@@ -10,7 +13,7 @@ def home_view(request):
     return render(request, 'home.html')
 
 
-# --- 2. AÑADIMOS LA NUEVA VISTA DE PERFIL ---
+# Vista de Perfil
 @login_required  # Esto protege la vista, solo usuarios logueados pueden entrar
 def profile_view(request):
     """
@@ -31,6 +34,44 @@ def profile_view(request):
     }
     # Renderizamos un NUEVO template que crearemos a continuación
     return render(request, 'personas/profile.html', context)
+
+
+# --- 3. AÑADIMOS LA NUEVA VISTA DE EDICIÓN DE PERFIL ---
+@login_required
+def profile_edit_view(request):
+    """
+    Maneja la lógica para editar el perfil del usuario.
+    """
+    try:
+        persona = request.user.persona
+    except Persona.DoesNotExist:
+        # Manejo por si acaso la persona no existe
+        persona = None
+
+    if request.method == 'POST':
+        # Si es POST, procesamos los formularios con los datos enviados
+        user_form = UserEditForm(request.POST, instance=request.user)
+        persona_form = PersonaForm(request.POST, instance=persona)
+
+        if user_form.is_valid() and persona_form.is_valid():
+            user_form.save()
+            persona_form.save()
+
+            # (Opcional: añadir un mensaje de éxito con django.contrib.messages)
+
+            # Redirigimos de vuelta a la vista de perfil
+            return redirect('profile')
+
+    else:
+        # Si es GET, mostramos los formularios con la data actual
+        user_form = UserEditForm(instance=request.user)
+        persona_form = PersonaForm(instance=persona)
+
+    context = {
+        'user_form': user_form,
+        'persona_form': persona_form
+    }
+    return render(request, 'personas/profile_edit.html', context)
 
 
 # Vista de Registro (Sign Up)

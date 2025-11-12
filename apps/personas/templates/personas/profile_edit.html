@@ -1,25 +1,32 @@
 {% extends "base.html" %}
 
-{% block title %}Registrarse{% endblock %}
+{% block title %}Editar Mi Perfil{% endblock %}
 
 {% block content %}
+<!-- Usamos .content-container y las clases de formulario que ya teníamos -->
 <div class="content-container" style="max-width: 600px;">
-    <h2 style="text-align: center; font-size: 1.8rem;">Crear una Cuenta</h2>
+    <h2 style="text-align: center; font-size: 1.8rem; margin-bottom: 2rem;">Editar Mi Perfil</h2>
     
-    <form method="post" style="margin-top: 2rem;">
+    <form method="post">
         {% csrf_token %}
         
         <div style="border-bottom: 1px solid var(--border-color); margin-bottom: 2rem; padding-bottom: 2rem;">
             <h3 style="font-size: 1.2rem; margin-bottom: 1.5rem;">Datos de la Cuenta</h3>
+            <p class="helptext" style="margin-top: -1rem; margin-bottom: 1.5rem;">
+                (Para cambiar tu contraseña, usa la función "Olvidé mi contraseña" 
+                que implementaremos luego).
+            </p>
+
+            {% if user_form.non_field_errors %}
+                <div class="errorlist">{{ user_form.non_field_errors }}</div>
+            {% endif %}
+            
             {% for field in user_form %}
                 <div class="form-field">
                     <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
                     <div class="form-field-wrapper">
-                        <!-- Añadimos iconos a los campos de registro -->
                         {% if field.name == 'username' %}<i class="icon fa-solid fa-user"></i>{% endif %}
                         {% if field.name == 'email' %}<i class="icon fa-solid fa-envelope"></i>{% endif %}
-                        {% if field.name == 'password' %}<i class="icon fa-solid fa-lock"></i>{% endif %}
-                        
                         {{ field }}
                     </div>
                     {% if field.help_text %}<p class="helptext">{{ field.help_text }}</p>{% endif %}
@@ -31,9 +38,9 @@
         <div>
             <h3 style="font-size: 1.2rem; margin-bottom: 1.5rem;">Datos Personales</h3>
             {% for field in persona_form %}
-                 <div class="form-field">
+                <div class="form-field">
                     <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
-                    <!-- Añadimos la clase 'no-icon' a los campos que no lo llevan -->
+                    <!-- Añadimos 'no-icon' para que el padding sea correcto -->
                     {{ field }}
                     {% if field.help_text %}<p class="helptext">{{ field.help_text }}</p>{% endif %}
                     {% for error in field.errors %}<p class="errorlist"><li>{{ error }}</li></p>{% endfor %}
@@ -41,8 +48,15 @@
             {% endfor %}
         </div>
 
-        <div style="margin-top: 2rem;">
-            <button type="submit" class="btn-primary">Crear Cuenta</button>
+        <div style="margin-top: 2rem; display: flex; justify-content: flex-end; gap: 1rem;">
+            <!-- Botón de Cancelar -->
+            <a href="{% url 'profile' %}" class="btn-cancel">
+                Cancelar
+            </a>
+            <!-- Botón de Guardar Cambios -->
+            <button type="submit" class="btn-primary" style="width: auto;">
+                Guardar Cambios
+            </button>
         </div>
     </form>
 </div>

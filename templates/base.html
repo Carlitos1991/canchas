@@ -4,72 +4,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Mi Proyecto{% endblock %}</title>
-    <!--
-        Aquí irían tus archivos CSS globales.
-        Ejemplo usando Tailwind para un estilo rápido:
-    -->
-    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- 1. ELIMINAMOS EL SCRIPT DE TAILWIND -->
+
+    <!-- 2. AÑADIMOS EL LINK A NUESTRO STYLE.CSS -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <!-- 3. AÑADIMOS FONT AWESOME (para los iconos) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
-<body class="bg-gray-100 font-sans">
+<body>
 
-    <nav class="bg-white shadow-md">
-        <div class="max-w-6xl mx-auto px-4">
-            <div class="flex justify-between">
-                <div class="flex space-x-7">
-                    <div>
-                        <!-- Logo -->
-                        <a href="{% url 'home' %}" class="flex items-center py-4 px-2">
-                            <span class="font-semibold text-gray-700 text-lg">MiProyecto</span>
-                        </a>
-                    </div>
-                </div>
-                <!-- Menú de Navegación -->
-                <div class="flex items-center space-x-3">
-                    {% if user.is_authenticated %}
-                        <!-- Si el usuario está autenticado -->
-                        <span class="py-4 px-2 text-gray-500">
-                            Hola, {{ user.persona.nombre|default:user.username }}!
-                        </span>
+    <!-- 4. Actualizamos el HTML a clases BEM/semánticas -->
+    <nav class="navbar">
+        <a href="{% url 'home' %}" class="navbar-brand">MiProyecto</a>
 
-                        <!-- AÑADIMOS ESTE LINK AL PERFIL -->
-                        <a href="{% url 'profile' %}" class="py-4 px-2 text-gray-500 font-medium hover:text-indigo-500 transition duration-300">
-                            Mi Perfil
-                        </a>
+        <div class="navbar-links">
+            {% if user.is_authenticated %}
+                <span>
+                    Hola, {{ user.persona.nombre|default:user.username }}!
+                </span>
+                <a href="{% url 'profile' %}">Mi Perfil</a>
 
-                        <!--
-                          AQUÍ ESTÁ EL CAMBIO:
-                          Cambiamos el <a> por un <form> que envía un POST.
-                          Usamos un <button> con las mismas clases de Tailwind
-                          que tenía el <a> para que se vea idéntico.
-                          Añadimos 'cursor-pointer' para que aparezca la manito.
-                        -->
-                        <form method="post" action="{% url 'logout' %}" class="inline">
-                            {% csrf_token %}
-                            <button type="submit" class="py-2 px-3 bg-red-500 text-white rounded-md hover:bg-red-600 transition duration-300 cursor-pointer">
-                                Cerrar Sesión
-                            </button>
-                        </form>
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-logout">Cerrar Sesión</button>
+                </form>
 
-                    {% else %}
-                        <!-- Si el usuario NO está autenticado -->
-                        <a href="{% url 'login' %}" class="py-4 px-2 text-gray-500 hover:text-indigo-500 transition duration-300">
-                            Iniciar Sesión
-                        </a>
-                        <a href="{% url 'signup' %}" class="py-2 px-3 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition duration-300">
-                            Registrarse
-                        </a>
-                    {% endif %}
-                </div>
-            </div>
+            {% else %}
+                <a href="{% url 'login' %}">Iniciar Sesión</a>
+                <a href="{% url 'signup' %}">Registrarse</a>
+            {% endif %}
         </div>
     </nav>
 
-    <!-- Contenido principal de la página -->
-    <main class="max-w-6xl mx-auto p-8">
+    <main>
         {% block content %}
-        <!-- El contenido de otras plantillas irá aquí -->
+        <!-- El contenido de las otras páginas irá aquí -->
         {% endblock %}
     </main>
+
+    <!-- (Opcional) Podemos añadir un footer simple si queremos -->
+    <!--
+    <footer class="footer">
+        <p>&copy; 2025 Mi Proyecto. Todos los derechos reservados.</p>
+    </footer>
+    -->
 
 </body>
 </html>

@@ -113,7 +113,12 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-# --- AÑADIMOS NUESTRO DIRECTORIO GLOBAL DE ARCHIVOS ESTÁTICOS ---
+# --- NUEVO: Directorio donde Django COLECTARÁ todos los archivos estáticos para producción ---
+# No lo usaremos en desarrollo, pero es una buena práctica tenerlo definido.
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# --- YA EXISTÍA: Directorios adicionales donde Django buscará archivos estáticos ---
+# Esto apunta a nuestra carpeta global 'static' en la raíz del proyecto.
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
@@ -128,6 +133,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # A dónde redirigir después del login
 LOGIN_REDIRECT_URL = 'home'
 # A dónde redirigir después del logout
-LOGOUT_REDIRECT_URL = 'home'
+# --- CAMBIAMOS ESTA LÍNEA ---
+LOGOUT_REDIRECT_URL = 'login'
+# --- FIN DEL CAMBIO ---
 # El nombre de la URL de nuestra vista de login
 LOGIN_URL = 'login'
