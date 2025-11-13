@@ -1,28 +1,27 @@
 from django.contrib import admin
 from django.urls import path
-from django.contrib.auth import views as auth_views  # Vistas de auth de Django
+from django.contrib.auth import views as auth_views
 
-# --- 1. Importamos TODAS las vistas que necesitamos ---
-from apps.personas.views import home_view, signup_view, profile_view, profile_edit_view
+# --- Importamos nuestras vistas ---
+from apps.personas.views import home_view, profile_view, profile_edit_view, login_register_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    # --- URLs de Autenticación ---
+    # --- RUTAS DE AUTENTICACIÓN (ACTUALIZADAS) ---
 
-    # Esta es la ruta raíz (''). Es el LOGIN
-    path('', auth_views.LoginView.as_view(
-        template_name='registration/login.html',
-        redirect_authenticated_user=True  # Redirige si ya está logueado
-    ), name='login'),
+    # La raíz (/) ahora es nuestra página combinada de Login y Registro
+    path('', login_register_view, name='login_register'),
 
+    # El Logout nos redirige a la nueva página de login (configurado en settings.py)
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
 
-    # --- URLs de la App Personas ---
-    path('signup/', signup_view, name='signup'),
+    # --- RUTAS DE LA APLICACIÓN ---
+
+    # El "Home" (después de iniciar sesión)
+    path('home/', home_view, name='home'),
+
+    # Perfil y Edición de Perfil
     path('profile/', profile_view, name='profile'),
     path('profile/edit/', profile_edit_view, name='profile_edit'),
-
-    # Esta es la ruta 'home/' (a donde vamos DESPUÉS del login)
-    path('home/', home_view, name='home'),
 ]

@@ -1,100 +1,124 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
+from django.contrib.auth.forms import AuthenticationForm
 from .forms import UserForm, PersonaForm, UserEditForm
 from .models import Persona
 
 
+# --- ¡NUEVA VISTA COMBINADA! ---
+def login_register_view(request):
+    """
+    Maneja tanto el inicio de sesión como el registro en una sola página.
+    """
+
+    # --- Lógica de Registro (Sign Up) ---
+    # Si los datos vienen del formulario de registro...
+    if request.method == 'POST' and 'signup_submit' in request.POST:
+        user_form = UserForm(request.POST, prefix='signup')
+
+        if user_form.is_valid():
+            user = user_form.save()
+            # Creamos una Persona vacía
+            Persona.objects.create(user=user)
+            # Logueamos al usuario
+            login(request, user)
+            # Redirigimos a "Editar Perfil" para que complete sus datos
+            return redirect('profile_edit')
+        else:
+            # Si el formulario de registro no es válido, mostramos los errores
+            # Creamos un formulario de login vacío para mostrar en la otra pestaña
+            login_form = AuthenticationForm(prefix='login')
+            # Le decimos al template que muestre el panel de registro activo
+            return render(request, 'registration/login_register.html', {
+                'user_form': user_form,
+                'login_form': login_form,
+                'show_signup': True  # Variable para activar el panel de JS
+            })
+
+    # --- Lógica de Inicio de Sesión (Login) ---
+    # Si los datos vienen del formulario de login...
+    elif request.method == 'POST' and 'login_submit' in request.POST:
+        # Reutilizamos UserForm para el login, pero solo usamos username/password
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        # Este formulario maneja la autenticación y los errores de "clave incorrecta"
+        login_form = AuthenticationForm(request, data=request.POST, prefix='login')
+        if login_form.is_valid():
+            # --- CAMBIO AQUÍ: Usamos el form para loguear ---
+            user = login_form.get_user()
+            login(request, user)
+            return redirect('home')
+        else:
+            # El form ya tiene los errores (ej. "usuario o clave incorrecta")
+            # --- CAMBIO AQUÍ: Creamos un form de registro vacío ---
+            user_form = UserForm(prefix='signup')
+            return render(request, 'registration/login_register.html', {
+                'user_form': user_form,
+                'login_form': login_form,
+                'show_signup': False
+            })
+
+    # --- Lógica GET (Carga inicial de la página) ---
+    else:
+        # Si es un GET, mostramos ambos formularios vacíos
+        user_form = UserForm(prefix='signup')
+        login_form = AuthenticationForm(prefix='login')  # Usamos UserForm también para login por simplicidad de campos
+
+    return render(request, 'registration/login_register.html', {
+        'user_form': user_form,
+        'login_form': login_form
+    })
+
+
+# --- VISTAS PROTEGIDAS (Sin cambios) ---
+
 @login_required
 def home_view(request):
     """
-    Vista para la página de inicio (después del login).
+    Vista para la página de inicio, visible solo para usuarios logueados.
     """
-    return render(request, "home.html")
-
-
-def signup_view(request):
-    """
-    Vista para el registro de nuevos usuarios (simplificado).
-    """
-    if request.method == 'POST':
-        # --- NUEVA LÓGICA DE REGISTRO ---
-        user_form = UserForm(request.POST)
-
-        if user_form.is_valid():
-            # 1. Guardamos el User (con la contraseña hasheada)
-            new_user = user_form.save()
-            new_user.set_password(user_form.cleaned_data['password'])
-            new_user.save()
-
-            # 2. ¡Importante! Creamos la Persona vacía asociada al usuario
-            Persona.objects.create(user=new_user)
-
-            # 3. Logueamos al usuario automáticamente
-            login(request, new_user)
-
-            # 4. Mensaje de bienvenida
-            messages.success(request, '¡Bienvenido! Tu cuenta ha sido creada. Por favor, completa tu perfil.')
-
-            # 5. Redirigimos a la página de "Editar Perfil"
-            return redirect('profile_edit')
-        # Si el formulario no es válido, se renderizará de nuevo
-        # con los errores (el 'else' de abajo se encarga).
-
-    else:  # Si es un GET
-        user_form = UserForm()
-
-    # Preparamos el contexto (solo con user_form)
-    context = {
-        'user_form': user_form
-    }
-    return render(request, 'registration/signup.html', context)
-    # --- FIN DE LA NUEVA LÓGICA ---
+    return render(request, 'home.html')
 
 
 @login_required
 def profile_view(request):
     """
-    Vista para mostrar el perfil del usuario.
+    Muestra el perfil del usuario logueado.
     """
-    # Usamos get_object_or_404 para manejar el caso de que la persona no exista
-    # (aunque ahora siempre debería existir)
-    persona = get_object_or_404(Persona, user=request.user)
-    context = {
-        'persona': persona
-    }
-    return render(request, 'personas/profile.html', context)
+    # request.user ya está disponible gracias a @login_required
+    # La 'persona' se obtiene desde la relación 'user.persona'
+    return render(request, 'personas/profile.html')
 
 
 @login_required
 def profile_edit_view(request):
     """
-    Vista para editar el perfil del usuario.
+    Permite al usuario logueado editar su User (email) y su Persona.
     """
-    persona = get_object_or_404(Persona, user=request.user)
+    user = request.user
+    # Usamos 'getattr' para manejar el caso de que 'persona' no exista
+    persona = getattr(user, 'persona', None)
+
+    # Si no tiene persona (creado por admin), la creamos
+    if not persona:
+        persona = Persona.objects.create(user=user)
 
     if request.method == 'POST':
-        # Pasamos 'instance' para que los formularios sepan qué objetos editar
-        user_form = UserEditForm(request.POST, instance=request.user)
+        # Pasamos la instancia existente para que el formulario sepa que es una edición
+        user_form = UserEditForm(request.POST, instance=user)
         persona_form = PersonaForm(request.POST, instance=persona)
 
         if user_form.is_valid() and persona_form.is_valid():
             user_form.save()
             persona_form.save()
-
-            messages.success(request, '¡Tu perfil ha sido actualizado con éxito!')
-
-            # Redirigimos al perfil para ver los cambios
-            return redirect('profile')
-
-    else:  # Si es un GET
-        # Llenamos los formularios con la data actual
-        user_form = UserEditForm(instance=request.user)
+            return redirect('profile')  # Redirigir al perfil para ver los cambios
+    else:
+        # Creamos los formularios precargados con la info actual
+        user_form = UserEditForm(instance=user)
         persona_form = PersonaForm(instance=persona)
 
-    context = {
+    return render(request, 'personas/profile_edit.html', {
         'user_form': user_form,
         'persona_form': persona_form
-    }
-    return render(request, 'personas/profile_edit.html', context)
+    })

@@ -126,15 +126,15 @@ STATICFILES_DIRS = [
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
+# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
-# --- CONFIGURACIÓN DE AUTENTICACIÓN ---
+# --- CONFIGURACIÓN DE AUTENTICACIÓN (ACTUALIZADA) ---
 # A dónde redirigir después del login
 LOGIN_REDIRECT_URL = 'home'
-# A dónde redirigir después del logout
-# --- CAMBIAMOS ESTA LÍNEA ---
-LOGOUT_REDIRECT_URL = 'login'
-# --- FIN DEL CAMBIO ---
-# El nombre de la URL de nuestra vista de login
-LOGIN_URL = 'login'
+
+# --- CAMBIO AQUÍ ---
+# A dónde redirigir después del logout (a la nueva página de login)
+LOGOUT_REDIRECT_URL = 'login_register'
+# El nombre de la URL de nuestra nueva vista de login/registro
+LOGIN_URL = 'login_register'
