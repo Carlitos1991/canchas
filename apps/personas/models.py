@@ -19,6 +19,15 @@ class Persona(models.Model):
     # on_delete=models.CASCADE significa que si se borra el User, se borra la Persona.
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='persona')
 
+    # --- CAMPO DE FOTO ---
+    foto = models.ImageField(
+        upload_to='personas/fotos/',
+        verbose_name=_('Foto de Perfil'),
+        null=True,
+        blank=True,
+        help_text=_('Foto de perfil del usuario.')
+    )
+
     # --- CAMPOS ACTUALIZADOS ---
     # Hacemos que los campos principales sean opcionales (null=True, blank=True)
     # para permitir un registro simplificado.

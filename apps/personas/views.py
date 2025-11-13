@@ -86,9 +86,12 @@ def profile_view(request):
     """
     Muestra el perfil del usuario logueado.
     """
-    # request.user ya está disponible gracias a @login_required
-    # La 'persona' se obtiene desde la relación 'user.persona'
-    return render(request, 'personas/profile.html')
+    # CORRECCIÓN: Obtener el objeto 'persona' y pasarlo al contexto.
+    # Usamos getattr para evitar un error si la persona no existe por alguna razón.
+    persona = getattr(request.user, 'persona', None)
+    
+    # Pasamos la variable 'persona' a la plantilla.
+    return render(request, 'personas/profile.html', {'persona': persona})
 
 
 @login_required
@@ -107,7 +110,8 @@ def profile_edit_view(request):
     if request.method == 'POST':
         # Pasamos la instancia existente para que el formulario sepa que es una edición
         user_form = UserEditForm(request.POST, instance=user)
-        persona_form = PersonaForm(request.POST, instance=persona)
+        # CORRECCIÓN: Añadimos request.FILES para manejar la subida de la foto
+        persona_form = PersonaForm(request.POST, request.FILES, instance=persona)
 
         if user_form.is_valid() and persona_form.is_valid():
             user_form.save()

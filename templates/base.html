@@ -17,57 +17,45 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 
-<!--
-  El <body> necesita saber si el usuario está logueado o no
-  para aplicar los estilos correctos (ej. modo oscuro)
-  y para decidir si la clase 'logged-out' se aplica (para el login).
--->
 <body class="{% if not user.is_authenticated %}logged-out{% endif %}">
 
     {% if user.is_authenticated %}
-        <!-- =================================== -->
-        <!--     NUEVO SIDEBAR                 -->
-        <!-- =Sustituye al Navbar superior     -->
-        <!-- =================================== -->
+        <!-- Barra superior para móviles -->
+        <div class="mobile-topbar">
+            <button id="mobile-sidebar-toggle" class="mobile-sidebar-toggle-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <span class="mobile-brand-text">Canchas</span>
+            <div class="topbar-spacer"></div>
+        </div>
+
+        <!-- Overlay para el sidebar en móvil -->
+        <div class="sidebar-overlay"></div>
+
         <aside class="sidebar">
-            <!-- Encabezado del Sidebar (Logo y Botón de Colapsar) -->
             <div class="sidebar-header">
-                <a href="{% url 'home' %}" class="sidebar-brand">
+                <a href="#" id="sidebar-toggle" class="sidebar-brand" title="Colapsar/Expandir Sidebar">
                     <img src="{% static 'media/icono.png' %}" alt="Logo" class="sidebar-logo">
                     <span class="sidebar-brand-text">Canchas</span>
                 </a>
-                <!-- Este botón será usado por main.js -->
-                <button id="sidebar-toggle" class="sidebar-toggle-btn" title="Colapsar sidebar">
-                    <i class="fa-solid fa-chevron-left"></i>
-                </button>
             </div>
 
-            <!-- Navegación Principal -->
             <nav class="sidebar-nav">
-                <!--
-                  NOTA: La clase 'active' debe ser dinámica.
-                  (¡Ahora lo implementamos correctamente!)
-                -->
-                <!-- --- CAMBIO AQUÍ: Lógica 'active' corregida --- -->
                 <a href="{% url 'home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
                     <i class="nav-icon fa-solid fa-house"></i>
                     <span class="nav-text">Dashboard</span>
                 </a>
-                <!-- --- CAMBIO AQUÍ: Lógica 'active' corregida --- -->
                 <a href="{% url 'profile' %}" class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
                     <i class="nav-icon fa-solid fa-user"></i>
                     <span class="nav-text">Mi Perfil</span>
                 </a>
-                <!-- --- CAMBIO AQUÍ: Lógica 'active' corregida --- -->
                 <a href="{% url 'profile_edit' %}" class="nav-link {% if request.resolver_match.url_name == 'profile_edit' %}active{% endif %}">
                     <i class="nav-icon fa-solid fa-pen-to-square"></i>
                     <span class="nav-text">Editar Perfil</span>
                 </a>
             </nav>
 
-            <!-- Pie de Sidebar (Modo Oscuro y Perfil) -->
             <div class="sidebar-footer">
-                <!-- Interruptor de Modo Oscuro -->
                 <div class="theme-switch-wrapper">
                     <i class="nav-icon fa-solid fa-moon"></i>
                     <span class="nav-text">Modo Oscuro</span>
@@ -76,24 +64,19 @@
                         <span class="slider round"></span>
                     </label>
                 </div>
-
-                <!-- Perfil del Usuario -->
+                
                 <div class="sidebar-profile">
-                    <!-- Usamos un placeholder genérico para el avatar -->
-                    <img src="https://placehold.co/40x40/55B8BA/FFFFFF?text={{ user.username.0|upper }}"
-                         alt="Avatar"
-                         class="profile-avatar"
-                         onerror="this.src='https://placehold.co/40x40/55B8BA/FFFFFF?text=?'">
-
+                    <a href="{% url 'profile' %}" title="Ver mi perfil">
+                        <img src="{% if user.persona.foto %}{{ user.persona.foto.url }}{% else %}https://placehold.co/40x40/55B8BA/FFFFFF?text={{ user.username.0|upper }}{% endif %}"
+                             alt="Avatar"
+                             class="profile-avatar"
+                             onerror="this.src='https://placehold.co/40x40/55B8BA/FFFFFF?text=?'">
+                    </a>
                     <div class="profile-info">
-                        <span class="profile-name">
-                            <!-- Muestra el nombre de la persona, o el username si no tiene nombre -->
-                            {{ user.persona.nombre|default:user.username }}
-                        </span>
+                        <span class="profile-name">{{ user.persona.nombre|default:user.username }}</span>
                         <span class="profile-role">Usuario</span>
                     </div>
-
-                    <!-- Botón de Logout -->
+                    <!-- Botón de Logout para vista expandida -->
                     <form method="post" action="{% url 'logout' %}" class="form-logout">
                         {% csrf_token %}
                         <button type="submit" class="btn-logout" title="Cerrar Sesión">
@@ -101,30 +84,24 @@
                         </button>
                     </form>
                 </div>
+                
+                <!-- CORRECCIÓN: Botón de Logout DUPLICADO solo para vista colapsada -->
+                <form method="post" action="{% url 'logout' %}" class="form-logout-collapsed">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-logout" title="Cerrar Sesión">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </form>
             </div>
         </aside>
     {% endif %}
 
-    <!-- ================================================================ -->
-    <!--     CONTENEDOR PRINCIPAL ÚNICO (Arregla el error de duplicado)    -->
-    <!-- ================================================================ -->
-    <!--
-      Usamos la lógica 'if/else' para cambiar la *clase* del contenedor,
-{#      pero el bloque {% block content %} solo aparece UNA VEZ.#}
-    -->
     <main class="{% if user.is_authenticated %}main-content{% else %}main-container{% endif %}">
         {% block content %}{% endblock %}
     </main>
 
-
-    <!-- =================================== -->
-    <!--     SCRIPTS GLOBALES              -->
-    <!-- =================================== -->
-
-    <!-- JS para el login (animación, etc) -->
-    <script src="{% static 'js/auth.js' %}"></script>
-
-    <!-- NUEVO JS para el sidebar y modo oscuro -->
+    <!-- Scripts Globales -->
     <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

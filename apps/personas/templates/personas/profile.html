@@ -3,14 +3,12 @@
 {% block title %}Mi Perfil{% endblock %}
 
 {% block content %}
-<!-- Reemplazamos todo el div de Tailwind por .content-container -->
 <div class="content-container" style="max-width: 700px;">
     <h2 style="font-size: 1.8rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 2rem;">
         Perfil de {{ user.username }}
     </h2>
     
     {% if persona %}
-        <!-- Usamos el nuevo grid de CSS -->
         <div class="profile-grid">
             
             <div class="profile-label">Nombre:</div>
@@ -47,8 +45,6 @@
                 {% endif %}
             </div>
         </div>
-        
-        <!-- Usamos las nuevas clases de botones -->
         <div class="profile-actions">
             <a href="{% url 'profile_edit' %}" class="btn-edit">
                 Editar Perfil
@@ -56,7 +52,6 @@
         </div>
         
     {% else %}
-        <!-- (Estilo simple para el caso borde) -->
         <div style="background-color: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 1rem; border-radius: 5px;">
             <strong style="font-weight: bold;">Información:</strong>
             <span>Este usuario no tiene un perfil de "Persona" asociado.</span>

@@ -1,47 +1,61 @@
-// Espera a que todo el HTML esté cargado antes de ejecutar el script
 document.addEventListener('DOMContentLoaded', function() {
 
-    // --- Lógica de Animación de Deslizamiento ---
-    const signUpButton = document.getElementById('signUpButton');
-    const signInButton = document.getElementById('signInButton');
     const container = document.getElementById('auth-container');
 
-    if (signUpButton && signInButton && container) {
-        signUpButton.addEventListener('click', () => {
+    // --- Botones para la vista de Escritorio (Desktop) ---
+    const signUpButton = document.getElementById('signUpButton');
+    const signInButton = document.getElementById('signInButton');
+
+    // --- Botones para la vista Móvil ---
+    const mobileSignUpButton = document.getElementById('mobileSignUpButton');
+    const mobileSignInButton = document.getElementById('mobileSignInButton');
+
+    // --- Lógica para cambiar de panel ---
+
+    if (signUpButton && signInButton) {
+        signUpButton.addEventListener('click', (e) => {
+            e.preventDefault();
             container.classList.add('right-panel-active');
         });
 
-        signInButton.addEventListener('click', () => {
+        signInButton.addEventListener('click', (e) => {
+            e.preventDefault();
             container.classList.remove('right-panel-active');
         });
     }
 
-    // --- Lógica de Mostrar/Ocultar Contraseña ---
+    if (mobileSignUpButton && mobileSignInButton) {
+        mobileSignUpButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            container.classList.add('right-panel-active');
+        });
 
-    // Función reutilizable
-    function setupPasswordToggle(toggleId, passwordId) {
-        const toggleButton = document.getElementById(toggleId);
-        // Django añade 'id_' al ID del input
-        const passwordInput = document.getElementById('id_' + passwordId);
-
-        if (toggleButton && passwordInput) {
-            toggleButton.addEventListener('click', function() {
-                // Cambia el tipo de input
-                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                passwordInput.setAttribute('type', type);
-
-                // Cambia el icono
-                this.classList.toggle('fa-eye');
-                this.classList.toggle('fa-eye-slash');
-            });
-        }
+        mobileSignInButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            container.classList.remove('right-panel-active');
+        });
     }
 
-    // --- CAMBIO AQUÍ ---
-    // Configura los 3 botones con los nuevos IDs prefijados
-    setupPasswordToggle('toggle-password-login', 'login-password');
-    setupPasswordToggle('toggle-password-signup', 'signup-password');
-    setupPasswordToggle('toggle-password-confirm', 'signup-password_confirm');
-    // --- FIN DEL CAMBIO ---
+    // --- Lógica para mostrar/ocultar contraseña (sin cambios) ---
+    const passwordWrappers = document.querySelectorAll('.form-field-wrapper');
+    passwordWrappers.forEach(wrapper => {
+        const passwordInput = wrapper.querySelector('input[type="password"]');
+        if (passwordInput) {
+            const icon = document.createElement('i');
+            icon.classList.add('fas', 'fa-eye-slash', 'password-toggle-icon');
+            icon.style.cursor = 'pointer';
+            wrapper.appendChild(icon);
 
+            icon.addEventListener('click', function() {
+                const isPassword = passwordInput.getAttribute('type') === 'password';
+                if (isPassword) {
+                    passwordInput.setAttribute('type', 'text');
+                    this.classList.replace('fa-eye-slash', 'fa-eye');
+                } else {
+                    passwordInput.setAttribute('type', 'password');
+                    this.classList.replace('fa-eye', 'fa-eye-slash');
+                }
+            });
+        }
+    });
 });

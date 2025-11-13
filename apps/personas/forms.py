@@ -62,16 +62,15 @@ class PersonaForm(forms.ModelForm):
         widget=forms.DateInput(
             attrs={
                 'placeholder': 'Fecha de Nacimiento (YYYY-MM-DD)',
-                'type': 'date'  # Para que muestre un calendario
+                'type': 'date'
             }
         ),
-        # Marcamos como no requerido (ya que el modelo lo permite)
         required=False
     )
 
     class Meta:
         model = Persona
-        # Excluimos los campos que no debe llenar el usuario
+        # Se excluyen los campos que no debe llenar el usuario
         exclude = ('user', 'estado', 'creado_en', 'actualizado_en')
 
         widgets = {
