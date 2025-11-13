@@ -3,23 +3,17 @@
 {% block title %}Página de Inicio{% endblock %}
 
 {% block content %}
-<!-- Quitamos las clases de Tailwind y usamos .content-container -->
-<div class="content-container" style="text-align: center;">
-    <h1>¡Bienvenido a Mi Proyecto!</h1>
-    
-    {% if user.is_authenticated %}
-        <p>
-            Has iniciado sesión como <strong>{{ user.username }}</strong>.
-        </p>
-        <p style="margin-top: 0.5rem; color: var(--text-secondary);">
-            Tu nombre es: {{ user.persona.nombre }} {{ user.persona.apellido }}.
-        </p>
-    {% else %}
-        <p>
-            Por favor, <a href="{% url 'login' %}">inicia sesión</a> 
-            o <a href="{% url 'signup' %}">regístrate</a> 
-            para continuar.
-        </p>
-    {% endif %}
+<!-- 
+  El .content-container es la clase clave que nuestro 
+  nuevo style.css (en modo logueado) estiliza.
+  Quitamos el 'style="text-align: center;"'
+-->
+<div class="content-container">
+    <h1 style="font-size: 2rem; margin-bottom: 1rem;">
+        ¡Bienvenido a Mi Proyecto!
+    </h1>
+    <p>
+        Esta es tu página de inicio. El contenido de tu dashboard irá aquí.
+    </p>
 </div>
 {% endblock %}

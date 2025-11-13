@@ -1,550 +1,836 @@
-    /* --- Variables de Color (Paleta "Teal" azul-verde) --- */
-    :root {
-        --primary-color: #55B8BA;   /* Un teal vibrante */
-        --secondary-color: #8FD8D9; /* Un teal más claro */
-        --primary-color-rgb: 85, 184, 186; /* Componentes RGB de primary-color */
-        --accent-color: #4A9C9E;    /* Un teal oscuro para acentos */
-        --bg-light: #f0f8f8;        /* Fondo claro (con un toque de cian) */
-        --text-dark: #333333;       /* Texto oscuro */
-        --text-secondary: #555555;   /* Texto secundario (más suave) */
-        --text-light: #ffffff;       /* Texto claro (para botones y paneles) */
-        --border-color: #dddddd;     /* Color de borde sutil */
-        --input-bg: #f5f5f5;         /* Fondo de input */
-        --shadow-light: rgba(0, 0, 0, 0.1); /* Sombra ligera */
-        --error-color: #e74c3c;       /* Rojo para errores */
-    }
+/* --- Variables de Color (Paleta "Teal" azul-verde) --- */
+/* Estas son las variables para el Modo Claro (Light Mode) */
+:root {
+    --primary-color: #55B8BA;
+    --secondary-color: #8FD8D9;
+    --primary-color-rgb: 85, 184, 186;
+    --accent-color: #4A9C9E;
 
-    /* --- Estilos Generales --- */
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: var(--bg-light);
-        color: var(--text-dark);
-        margin: 0;
-        padding: 0;
-        line-height: 1.6;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-    }
-    /* Oculta el navbar en la página de login/registro */
-    body.logged-out .navbar {
-        display: none;
-    }
-    /* Centra el contenido en la página de login/registro */
-    body.logged-out .main-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-grow: 1;
-        padding: 2rem;
-    }
+    /* --- Paleta de Colores de Fondo --- */
+    --bg-primary: #ffffff;   /* Fondo principal (ej. sidebar, contenedores) */
+    --bg-secondary: #f0f8f8; /* Fondo general del <body> */
+    --bg-input: #f5f5f5;     /* Fondo de inputs */
+    --bg-overlay: linear-gradient(to right, var(--primary-color), var(--accent-color)); /* Gradiente de login */
 
-    h1, h2, h3, h4, h5, h6 {
-        color: var(--text-dark);
-        margin: 0 0 0.5em 0;
-        font-weight: 600;
-    }
+    /* --- Paleta de Colores de Texto --- */
+    --text-primary: #333333;
+    --text-secondary: #555555;
+    --text-light: #ffffff;
+    --text-accent: var(--primary-color);
+    --text-logout: #e74c3c; /* Rojo para logout hover */
 
-    a {
-        color: var(--primary-color);
-        text-decoration: none;
-        transition: color 0.3s ease;
-    }
-    a:hover {
-        color: var(--accent-color);
-    }
+    /* --- Otros Colores --- */
+    --border-color: #eeeeee;
+    --shadow-light: rgba(0, 0, 0, 0.08);
+    --error-color: #e74c3c;
 
-    /* Contenedor principal para el contenido de la página (después de loguearse) */
-    main.main-container {
-        flex-grow: 1;
-        width: 100%;
-    }
+    /* --- Variables de Layout del Sidebar --- */
+    --sidebar-width-expanded: 260px;
+    --sidebar-width-collapsed: 88px; /* (Padding + icono) */
+    --sidebar-transition: all 0.3s ease-in-out;
+}
 
-    /* Contenedor para centrar contenido (Home, Perfil, etc.) */
-    .content-container {
-        max-width: 900px;
-        margin: 2rem auto;
-        padding: 2rem;
-        background-color: #ffffff;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px var(--shadow-light);
-    }
+/* ============================================================== */
+/* --- MODO OSCURO (DARK MODE) --- */
+/* ============================================================== */
+
+/* Cuando el <body> tiene la clase .dark-mode, estas variables sobrescriben las de :root */
+body.dark-mode {
+    --primary-color: #55B8BA; /* Mantenemos el mismo acento */
+    --secondary-color: #8FD8D9;
+    --accent-color: #4A9C9E;
+
+    /* --- Paleta de Colores de Fondo (Invertida) --- */
+    --bg-primary: #2c3e50;    /* Fondo principal oscuro (azul marino/gris) */
+    --bg-secondary: #222f3e;  /* Fondo general del <body> (más oscuro) */
+    --bg-input: #3a4b5c;      /* Fondo de inputs (más claro que el fondo) */
+    --bg-overlay: linear-gradient(to right, var(--primary-color), var(--accent-color)); /* El gradiente se mantiene */
+
+    /* --- Paleta de Colores de Texto (Invertida) --- */
+    --text-primary: #ecf0f1;  /* Texto principal (casi blanco) */
+    --text-secondary: #bdc3c7; /* Texto secundario (gris claro) */
+    --text-light: #ffffff;
+    --text-accent: var(--primary-color);
+    --text-logout: #e74c3c;
+
+    /* --- Otros Colores --- */
+    --border-color: #3a4b5c;
+    --shadow-light: rgba(0, 0, 0, 0.2);
+    --error-color: #e74c3c;
+}
 
 
-    /* --- Barra de Navegación (Navbar) --- */
-    .navbar {
-        background-color: #ffffff;
-        box-shadow: 0 2px 5px var(--shadow-light);
-    }
-    .navbar-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0.8rem 2rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    .navbar-brand {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--accent-color);
-    }
-    .navbar-brand:hover {
-        color: var(--primary-color);
-    }
-    .navbar-logo {
-        height: 30px;
-        width: 30px;
-    }
-    .navbar-links {
-        display: flex;
-        align-items: center;
-        gap: 1.5rem;
-    }
-    .navbar-links a {
-        color: var(--text-secondary);
-        font-weight: 500;
-    }
-    .form-logout {
-        margin: 0;
-        padding: 0;
-    }
-    .btn-logout {
-        background: none;
-        border: none;
-        color: var(--text-secondary);
-        font-family: inherit;
-        font-size: 1rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: color 0.3s ease;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    .btn-logout:hover {
-        color: var(--error-color); /* Rojo al pasar el mouse */
-    }
+/* --- Estilos Generales --- */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-primary);
+    margin: 0 0 0.5em 0;
+    font-weight: 600;
+}
+
+a {
+    color: var(--text-accent);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+a:hover {
+    color: var(--accent-color);
+}
+
+/* ============================================================== */
+/* --- LAYOUTS (LOGUEADO vs. DESLOGUEADO) --- */
+/* ============================================================== */
+
+/* --- Layout de Usuario Deslogueado (Login/Registro) --- */
+/* Oculta el navbar (que ya no existe) */
+body.logged-out .navbar {
+    display: none;
+}
+/* Centra el contenido en la página de login/registro */
+body.logged-out .main-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+    padding: 2rem;
+}
 
 
-    /* --- Formulario General (Inputs, Botones) --- */
-    /* (Usado por auth.js y profile_edit.html) */
+/* --- Layout de Usuario Logueado (Sidebar + Contenido) --- */
+body:not(.logged-out) {
+    display: flex;
+    flex-direction: row;
+}
 
-    .form-field {
-        margin-bottom: 1rem;
-        position: relative; /* Para iconos */
-    }
+/* Contenido principal (Dashboard, Perfil, etc.) */
+main.main-content {
+    flex-grow: 1;
+    width: 100%;
+    /* Añadimos un margen a la izquierda igual al ancho del sidebar */
+    margin-left: var(--sidebar-width-expanded);
+    padding: 2rem 3rem;
+    box-sizing: border-box;
+    transition: margin-left var(--sidebar-transition);
+}
 
-    /* Wrapper para el icono de Font Awesome y el input */
-    .form-field-wrapper {
-        position: relative;
-        display: flex;
-        align-items: center;
-        background-color: var(--input-bg);
-        border-radius: 8px;
-        border: 1px solid var(--input-bg); /* Borde sutil */
-        transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .form-field-wrapper:focus-within {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb), 0.25);
-    }
-
-    .form-field-wrapper .icon {
-        position: absolute;
-        left: 1rem;
-        color: var(--border-color);
-        font-size: 1.1rem;
-        pointer-events: none;
-        transition: color 0.3s ease;
-    }
-    .form-field-wrapper:focus-within .icon {
-        color: var(--primary-color);
-    }
-
-    .form-field input,
-    .form-field select {
-        width: 100%;
-        padding: 0.85rem 3rem 0.85rem 2.75rem;
-        border: none; /* Quitamos el borde del input, lo maneja el wrapper */
-        border-radius: 8px;
-        font-size: 0.95rem;
-        box-sizing: border-box;
-        background-color: transparent; /* El wrapper da el color */
-    }
-    .form-field input:focus {
-        outline: none; /* El focus lo maneja el wrapper */
-    }
-
-    /* Quitar padding de icono para selects sin icono (ej. Género) */
-    .form-field select.no-icon,
-    .form-field select {
-        padding-left: 1rem;
-        padding-right: 1rem;
-    }
-
-    /* --- Botón Mostrar/Ocultar Contraseña --- */
-    .password-toggle-icon {
-        position: absolute;
-        right: 1rem;
-        color: var(--text-secondary);
-        cursor: pointer;
-        font-size: 1.1rem;
-        transition: color 0.3s ease;
-    }
-    .password-toggle-icon:hover {
-        color: var(--primary-color);
-    }
+/* Contenedor para centrar contenido (Home, Perfil, etc.) */
+.content-container {
+    max-width: 900px;
+    margin: 0 auto; /* 0 arriba/abajo, auto en los lados */
+    padding: 2rem;
+    background-color: var(--bg-primary);
+    border-radius: 8px;
+    box-shadow: 0 2px 10px var(--shadow-light);
+    transition: background-color 0.3s ease;
+}
 
 
-    /* --- Botones Principales --- */
-    .btn-primary {
-        display: block;
-        width: 100%;
-        padding: 0.85rem 1.5rem;
-        background-color: var(--primary-color);
-        color: var(--text-light);
-        border: none;
-        border-radius: 8px;
-        font-size: 1rem; /* Reducido para encajar */
-        font-weight: 600;
-        cursor: pointer;
-        transition: background-color 0.3s ease, transform 0.2s ease;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    .btn-primary:hover {
-        background-color: var(--accent-color);
-        transform: translateY(-2px);
-    }
-    .btn-primary:active {
-        transform: scale(0.98);
-    }
+/* ============================================================== */
+/* --- NUEVO SIDEBAR (Reemplaza al Navbar) --- */
+/* ============================================================== */
 
-    .btn-secondary {
-        display: inline-block; /* Para que se ajuste al texto */
-        padding: 0.75rem 1.5rem;
-        background-color: transparent;
-        color: var(--text-light);
-        border: 2px solid var(--text-light);
-        border-radius: 8px;
-        font-size: 1rem; /* Reducido */
-        font-weight: 600;
-        cursor: pointer;
-        transition: background-color 0.3s ease, color 0.3s ease;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    .btn-secondary:hover {
-        background-color: var(--text-light);
-        color: var(--primary-color);
-    }
+.sidebar {
+    width: var(--sidebar-width-expanded);
+    height: 100vh;
+    position: fixed; /* Fijo en la pantalla */
+    top: 0;
+    left: 0;
+    background-color: var(--bg-primary);
+    box-shadow: 0 0 20px var(--shadow-light);
+    display: flex;
+    flex-direction: column;
+    transition: width var(--sidebar-transition), background-color 0.3s ease;
+    z-index: 200;
+}
 
+/* --- Encabezado del Sidebar --- */
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem;
+    height: 80px; /* Altura fija para alineación */
+    box-sizing: border-box;
+    border-bottom: 1px solid var(--border-color);
+    transition: border-color 0.3s ease;
+}
 
-    /* --- Errores y Ayuda --- */
-    .errorlist {
-        color: var(--error-color); /* Rojo error */
-        font-size: 0.85rem;
-        font-weight: 500;
-        margin-top: 0.35rem;
-        margin-bottom: 0.5rem;
-        list-style-type: none;
-        padding-left: 0.25rem;
-        text-align: left;
-    }
-    .errorlist li {
-        margin: 0;
-    }
-    .helptext {
-        font-size: 0.85rem;
-        color: #666;
-        margin-top: 0.25rem;
-    }
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary); /* Color del texto, no de acento */
+    transition: color 0.3s ease;
+    overflow: hidden; /* Evita que el texto se salga al colapsar */
+}
+.sidebar-brand:hover {
+    color: var(--text-accent);
+}
+.sidebar-logo {
+    height: 30px;
+    width: 30px;
+    flex-shrink: 0; /* Evita que el logo se encoja */
+}
+.sidebar-brand-text {
+    white-space: nowrap; /* Evita que el texto se divida en dos líneas */
+    opacity: 1;
+    transition: opacity 0.2s ease;
+}
 
-    /* --- Animación de Error --- */
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-        20%, 40%, 60%, 80% { transform: translateX(5px); }
-    }
+.sidebar-toggle-btn {
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--sidebar-transition);
+    flex-shrink: 0;
+}
+.sidebar-toggle-btn:hover {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    border-color: var(--primary-color);
+}
+.sidebar-toggle-btn i {
+    transition: transform var(--sidebar-transition);
+}
 
-    /* Borde rojo en el *wrapper* */
-    .form-field.error .form-field-wrapper {
-        border-color: var(--error-color);
-        animation: shake 0.5s ease-in-out;
-    }
-    /* Icono rojo */
-    .form-field.error .icon {
-        color: var(--error-color);
-    }
+/* --- Navegación del Sidebar --- */
+.sidebar-nav {
+    flex-grow: 1; /* Ocupa todo el espacio disponible */
+    padding: 1rem 0;
+    overflow-y: auto; /* Scroll si hay muchos links */
+    overflow-x: hidden;
+}
 
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 0.9rem 1.5rem;
+    margin: 0.25rem 1rem;
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    white-space: nowrap;
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+.nav-link:hover {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+}
+.nav-link.active {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+}
+.nav-link .nav-icon {
+    font-size: 1.2rem;
+    width: 2rem; /* Ancho fijo para el icono */
+    margin-right: 1.25rem;
+    flex-shrink: 0;
+    text-align: center;
+    transition: margin-right var(--sidebar-transition);
+}
+.nav-link .nav-text {
+    opacity: 1;
+    transition: opacity 0.2s ease;
+}
 
-    /* ============================================================== */
-    /* --- CONTENEDOR DE AUTENTICACIÓN (LOGIN/REGISTER ANIMADO) --- */
-    /* ============================================================== */
+/* --- Pie de Página del Sidebar --- */
+.sidebar-footer {
+    border-top: 1px solid var(--border-color);
+    padding: 1rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    transition: border-color 0.3s ease;
+}
 
-    .auth-container {
-        background-color: #fff;
-        border-radius: 15px;
-        box-shadow: 0 14px 28px rgba(0,0,0,0.25),
-                    0 10px 10px rgba(0,0,0,0.22);
-        position: relative;
-        overflow: hidden;
-        width: 100%;
-        max-width: 800px; /* Ancho total */
-        min-height: 520px; /* Altura mínima (arregla botón cortado) */
-    }
+/* --- Modo Oscuro --- */
+.theme-switch-wrapper {
+    display: flex;
+    align-items: center;
+    color: var(--text-secondary);
+    font-weight: 500;
+    white-space: nowrap;
+}
+.theme-switch-wrapper .nav-icon {
+    font-size: 1.2rem;
+    width: 2rem;
+    margin-right: 1.25rem;
+    text-align: center;
+    flex-shrink: 0;
+    transition: margin-right var(--sidebar-transition);
+}
+.theme-switch-wrapper .nav-text {
+    opacity: 1;
+    transition: opacity 0.2s ease;
+    flex-grow: 1;
+}
 
-    .form-auth-container {
-        position: absolute;
-        top: 0;
-        height: 100%;
-        transition: all 0.6s ease-in-out;
-        padding: 2rem;
-        box-sizing: border-box;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
+.theme-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px; /* Ancho reducido */
+    height: 24px; /* Alto reducido */
+    flex-shrink: 0;
+}
+.theme-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 24px;
+}
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px; /* Reducido */
+    width: 18px; /* Reducido */
+    left: 3px; /* Ajustado */
+    bottom: 3px; /* Ajustado */
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+input:checked + .slider {
+    background-color: var(--primary-color);
+}
+input:checked + .slider:before {
+    transform: translateX(20px); /* Ajustado */
+}
 
-    .form-auth-container form {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-    }
+/* --- Perfil de Usuario en Sidebar --- */
+.sidebar-profile {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.profile-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.profile-info {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow: hidden;
+    opacity: 1;
+    transition: opacity 0.2s ease;
+}
+.profile-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+.profile-role {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
 
-    .form-auth-container h2 {
-        font-size: 2rem;
-        margin-bottom: 1rem;
-    }
-
-    /* Contenedor del Login (Sign In) */
-    .sign-in-container {
-        left: 0;
-        width: 50%;
-        z-index: 2;
-    }
-
-    /* Contenedor del Registro (Sign Up) */
-    .sign-up-container {
-        left: 0;
-        width: 50%;
-        opacity: 0;
-        z-index: 1;
-    }
-
-    .forgot-password {
-        margin: 1rem 0;
-    }
-    .forgot-password a {
-        color: var(--text-secondary);
-        font-size: 0.9rem;
-    }
-
-    /* Divisor "o iniciar sesion..." */
-    .social-login-divider {
-        font-size: 0.9rem;
-        color: var(--text-secondary);
-        margin: 1rem 0;
-    }
-
-    .social-icons {
-        display: flex;
-        justify-content: center;
-        gap: 1.5rem;
-        margin: 0.5rem 0;
-    }
-    .social-icons a {
-        color: var(--text-secondary);
-        font-size: 1.5rem;
-        transition: color 0.3s ease, transform 0.3s ease;
-    }
-    .social-icons a:hover {
-        color: var(--accent-color);
-        transform: scale(1.1);
-    }
-
-
-    /* --- Paneles de Animación (Overlay) --- */
-
-    .overlay-container {
-        position: absolute;
-        top: 0;
-        left: 50%;
-        width: 50%;
-        height: 100%;
-        overflow: hidden;
-        transition: transform 0.6s ease-in-out;
-        z-index: 100;
-    }
-
-    .overlay {
-        background-color: var(--primary-color);
-        background-image: linear-gradient(to right, var(--primary-color), var(--accent-color));
-        color: var(--text-light);
-        position: relative;
-        left: -100%;
-        height: 100%;
-        width: 200%;
-        transform: translateX(0);
-        transition: transform 0.6s ease-in-out;
-    }
-
-    .overlay-panel {
-        position: absolute;
-        top: 0;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 2rem; /* Reducido para que quepa el texto */
-        box-sizing: border-box;
-        width: 50%;
-        height: 100%;
-        text-align: center;
-        transform: translateX(0);
-        transition: transform 0.6s ease-in-out;
-    }
-    .overlay-panel h2 {
-        color: var(--text-light);
-        font-size: 2rem;
-        margin-bottom: 1rem;
-    }
-    .overlay-panel p {
-        font-size: 1rem; /* Aumentado ligeramente */
-        line-height: 1.5;
-        margin: 1rem 0;
-    }
-
-    /* Panel izquierdo (overlay sobre el Registro) */
-    .overlay-left {
-        transform: translateX(-20%);
-    }
-
-    /* Panel derecho (overlay sobre el Login) */
-    .overlay-right {
-        right: 0;
-        transform: translateX(0);
-    }
-
-
-    /* --- Lógica de la Animación (cuando se activa) --- */
-
-    /* Mover el panel de Login (Sign In) a la derecha */
-    .auth-container.right-panel-active .sign-in-container {
-        transform: translateX(100%);
-        opacity: 0;
-        z-index: 1;
-    }
-
-    /* Traer el panel de Registro (Sign Up) */
-    .auth-container.right-panel-active .sign-up-container {
-        transform: translateX(100%);
-        opacity: 1;
-        z-index: 5;
-        animation: slideIn 0.6s;
-    }
-
-    /* Mover el contenedor del Overlay */
-    .auth-container.right-panel-active .overlay-container {
-        transform: translateX(-100%);
-    }
-
-    /* Mover el Overlay (el fondo de color) */
-    .auth-container.right-panel-active .overlay {
-        transform: translateX(50%);
-    }
-
-    /* Mover el texto del overlay izquierdo */
-    .auth-container.right-panel-active .overlay-left {
-        transform: translateX(0);
-    }
-
-    /* Mover el texto del overlay derecho */
-    .auth-container.right-panel-active .overlay-right {
-        transform: translateX(20%);
-    }
-
-    /* Animación de "aparición" */
-    @keyframes slideIn {
-        0% {
-            opacity: 0;
-            transform: translateX(100%);
-        }
-        100% {
-            opacity: 1;
-            transform: translateX(100%);
-        }
-    }
+.btn-logout {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    padding: 0.5rem;
+    border-radius: 5px;
+    margin-right: -0.5rem; /* Alineación */
+}
+.btn-logout:hover {
+    color: var(--text-logout);
+    background-color: var(--bg-secondary);
+}
 
 
-    /* ============================================================== */
-    /* --- ESTILOS DE PÁGINAS DE PERFIL (Para usuarios logueados) --- */
-    /* ============================================================== */
+/* ============================================================== */
+/* --- ESTADO COLAPSADO DEL SIDEBAR --- */
+/* ============================================================== */
 
-    .profile-grid {
-        display: grid;
-        grid-template-columns: 200px 1fr; /* Columna de label y columna de datos */
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
-    .profile-label {
-        font-weight: 600;
-        color: var(--text-secondary);
-    }
-    .profile-data {
-        font-size: 1.05rem;
-    }
-    .profile-status {
-        padding: 0.25rem 0.75rem;
-        border-radius: 5px;
-        font-size: 0.9rem;
-        font-weight: 600;
-    }
-    .profile-status-active {
-        background-color: #e0f8f0;
-        color: #1a9c68;
-    }
-    .profile-status-inactive {
-        background-color: #fceeee;
-        color: #c94040;
-    }
+.sidebar.collapsed {
+    width: var(--sidebar-width-collapsed);
+}
+/* Ocultar texto y ajustar márgenes */
+.sidebar.collapsed .sidebar-brand-text,
+.sidebar.collapsed .nav-text,
+.sidebar.collapsed .profile-info {
+    opacity: 0;
+    width: 0;
+    pointer-events: none;
+}
+/* Rotar el botón de colapsar */
+.sidebar.collapsed .sidebar-toggle-btn i {
+    transform: rotate(180deg);
+}
+/* Ajustar el botón de logout al centro */
+.sidebar.collapsed .btn-logout {
+    margin-right: 0;
+}
+/* Centrar el icono del logo */
+.sidebar.collapsed .sidebar-brand {
+    justify-content: center;
+}
+/* Centrar iconos de navegación y modo oscuro */
+.sidebar.collapsed .nav-link .nav-icon,
+.sidebar.collapsed .theme-switch-wrapper .nav-icon {
+    margin-right: 0;
+}
+/* Centrar el avatar */
+.sidebar.collapsed .sidebar-profile {
+    justify-content: center;
+}
 
-    .profile-actions {
-        margin-top: 2rem;
-        padding-top: 2rem;
-        border-top: 1px solid var(--border-color);
-        text-align: right;
-    }
+/* Ajustar el contenido principal cuando el sidebar está colapsado */
+body:not(.logged-out) .sidebar.collapsed + .main-content {
+    margin-left: var(--sidebar-width-collapsed);
+}
 
-    /* Botones de Editar Perfil (reutilizando clases) */
-    .btn-edit {
-        display: inline-block;
-        padding: 0.75rem 1.5rem;
-        background-color: var(--primary-color);
-        color: var(--text-light);
-        border-radius: 5px;
-        font-weight: 600;
-    }
-    .btn-edit:hover {
-        background-color: var(--accent-color);
-        color: var(--text-light);
-    }
 
-    .btn-cancel {
-        display: inline-block;
-        padding: 0.75rem 1.5rem;
-        background-color: #aaa; /* Gris para cancelar */
-        color: var(--text-light);
-        border-radius: 5px;
-        font-weight: 600;
-    }
-    .btn-cancel:hover {
-        background-color: #888;
-    }
+/* ============================================================== */
+/* --- CONTENEDOR DE AUTENTICACIÓN (LOGIN/REGISTER) --- */
+/* (Mantenemos todos estos estilos para la página de logged-out) */
+/* ============================================================== */
+
+.auth-container {
+    background-color: var(--bg-primary); /* Se adapta al modo oscuro */
+    border-radius: 15px;
+    box-shadow: 0 14px 28px var(--shadow-light),
+                0 10px 10px var(--shadow-light);
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    max-width: 800px;
+    /* --- ARREGLO DE ALTURA (MÁS COMPACTO) --- */
+    min-height: 580px;
+}
+
+.form-auth-container {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    transition: all 0.6s ease-in-out;
+    padding: 2rem;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.form-auth-container form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+.form-auth-container h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+/* --- Formulario General (Inputs) --- */
+/* (Estos estilos son específicos del login, no del perfil) */
+.form-field {
+    margin-bottom: 1rem;
+    position: relative;
+    width: 100%; /* Asegura que el form-field ocupe todo el ancho */
+}
+.form-field-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background-color: var(--bg-input);
+    border-radius: 8px;
+    border: 1px solid var(--border-color); /* Borde sutil */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.form-field-wrapper:focus-within {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb), 0.25);
+}
+.form-field-wrapper .icon {
+    position: absolute;
+    left: 1rem;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    pointer-events: none;
+    transition: color 0.3s ease;
+}
+.form-field-wrapper:focus-within .icon {
+    color: var(--primary-color);
+}
+
+/* --- ARREGLO 1 (TAMAÑO DE INPUTS) --- */
+.form-field input,
+.form-field select {
+    width: 100%;
+    /* Padding unificado: 0.85rem (arriba/abajo), 2.75rem (derecha/izquierda) */
+    padding: 0.85rem 2.75rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+    background-color: transparent;
+    color: var(--text-primary);
+}
+.form-field input:focus {
+    outline: none;
+}
+/* Excepción para Selects (ej. Género) */
+.form-field select.no-icon,
+.form-field select {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+/* --- FIN DEL ARREGLO 1 --- */
+
+/* --- Botón Mostrar/Ocultar Contraseña --- */
+.password-toggle-icon {
+    position: absolute;
+    right: 1rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: color 0.3s ease;
+}
+.password-toggle-icon:hover {
+    color: var(--primary-color);
+}
+
+
+/* --- Botones (Login/Registro) --- */
+.btn-primary {
+    display: block;
+    width: 100%;
+    padding: 0.85rem 1.5rem;
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.btn-primary:hover {
+    background-color: var(--accent-color);
+    transform: translateY(-2px);
+}
+.btn-primary:active {
+    transform: scale(0.98);
+}
+.btn-secondary {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background-color: transparent;
+    color: var(--text-light);
+    border: 2px solid var(--text-light);
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.btn-secondary:hover {
+    background-color: var(--text-light);
+    color: var(--primary-color);
+}
+
+/* --- Errores (Login/Registro) --- */
+.errorlist {
+    color: var(--error-color);
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-top: 0.35rem;
+    margin-bottom: 0.5rem;
+    list-style-type: none;
+    padding-left: 0.25rem;
+    text-align: left;
+}
+.errorlist li {
+    margin: 0;
+}
+.helptext {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 0.25rem;
+}
+
+/* --- Animación de Error (Login/Registro) --- */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+.form-field.error .form-field-wrapper {
+    border-color: var(--error-color);
+    animation: shake 0.5s ease-in-out;
+}
+.form-field.error .icon {
+    color: var(--error-color);
+}
+
+/* --- Contenedores (Login/Registro) --- */
+.sign-in-container {
+    left: 0;
+    width: 50%;
+    z-index: 2;
+}
+.sign-up-container {
+    left: 0;
+    width: 50%;
+    opacity: 0;
+    z-index: 1;
+}
+
+.forgot-password {
+    margin: 1rem 0;
+}
+.forgot-password a {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+.social-login-divider {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin: 1rem 0;
+}
+.social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin: 0.5rem 0;
+}
+.social-icons a {
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+.social-icons a:hover {
+    color: var(--accent-color);
+    transform: scale(1.1);
+}
+
+
+/* --- Paneles de Animación (Overlay) --- */
+.overlay-container {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 50%;
+    height: 100%;
+    overflow: hidden;
+    /* --- ARREGLO DE ANIMACIÓN DE FORMA --- */
+    transition: transform 0.6s ease-in-out, border-radius 0.6s ease-in-out;
+    z-index: 100;
+    /* --- FORMA DE LOGIN (D Invertida) --- */
+    border-radius: 100px 15px 15px 100px;
+}
+
+.overlay {
+    background-image: var(--bg-overlay);
+    color: var(--text-light);
+    position: relative;
+    left: -100%;
+    height: 100%;
+    width: 200%;
+    transform: translateX(0);
+    transition: transform 0.6s ease-in-out;
+}
+
+.overlay-panel {
+    position: absolute;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    /* --- ARREGLO DE TEXTO CORTADO --- */
+    padding: 0 2.5rem;
+    box-sizing: border-box;
+    width: 50%;
+    height: 100%;
+    text-align: center;
+    transform: translateX(0);
+    transition: transform 0.6s ease-in-out;
+}
+.overlay-panel h2 {
+    color: var(--text-light);
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+.overlay-panel p {
+    font-size: 1rem;
+    line-height: 1.5;
+    margin: 1rem 0;
+}
+
+.overlay-left {
+    transform: translateX(-20%);
+}
+.overlay-right {
+    right: 0;
+    transform: translateX(0);
+}
+
+/* --- Lógica de la Animación (cuando se activa) --- */
+.auth-container.right-panel-active .sign-in-container {
+    transform: translateX(100%);
+    opacity: 0;
+    z-index: 1;
+}
+.auth-container.right-panel-active .sign-up-container {
+    transform: translateX(100%);
+    opacity: 1;
+    z-index: 5;
+    animation: slideIn 0.6s;
+}
+
+/* Mover el contenedor del Overlay */
+.auth-container.right-panel-active .overlay-container {
+    transform: translateX(-100%);
+    /* --- FORMA DE REGISTRO (D Normal) --- */
+    border-radius: 15px 100px 100px 15px;
+}
+
+.auth-container.right-panel-active .overlay {
+    transform: translateX(50%);
+}
+.auth-container.right-panel-active .overlay-left {
+    transform: translateX(0);
+}
+.auth-container.right-panel-active .overlay-right {
+    transform: translateX(20%);
+}
+@keyframes slideIn {
+    0% { opacity: 0; transform: translateX(100%); }
+    100% { opacity: 1; transform: translateX(100%); }
+}
+
+
+/* ============================================================== */
+/* --- ESTILOS DE PÁGINAS DE PERFIL (Para usuarios logueados) --- */
+/* ============================================================== */
+
+/* Usamos .form-field y .form-field-wrapper de arriba */
+/* pero anulamos algunos estilos para solo *mostrar* datos */
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+.profile-label {
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+.profile-data {
+    font-size: 1.05rem;
+    color: var(--text-primary);
+}
+.profile-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+.profile-status-active {
+    background-color: #e0f8f0;
+    color: #1a9c68;
+}
+.profile-status-inactive {
+    background-color: #fceeee;
+    color: #c94040;
+}
+
+/* Ajustes para el formulario de Edición de Perfil */
+/* (El .form-field-wrapper ya está definido) */
+.profile-edit-form {
+    max-width: 600px;
+    margin: 0 auto;
+}
+.profile-edit-form .form-field label {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+.profile-edit-form .form-field {
+    margin-bottom: 1.5rem;
+}
+.profile-edit-form h3 {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 1.3rem;
+    color: var(--text-primary);
+}
+
+.profile-actions {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+.btn-edit {
+    width: auto;
+    background-color: var(--primary-color);
+}
+.btn-cancel {
+    width: auto;
+    background-color: #aaa;
+    color: var(--text-light);
+    border: none;
+    padding: 0.85rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+.btn-cancel:hover {
+    background-color: #888;
+}
