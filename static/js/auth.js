@@ -1,61 +1,70 @@
-document.addEventListener('DOMContentLoaded', function() {
+/*
+Este script maneja dos (2) funcionalidades en la página de login/registro:
+1. La animación de deslizamiento (Slider) entre los paneles de "Sign In" y "Sign Up".
+2. La lógica para mostrar/ocultar la contraseña (Password Toggle).
+*/
 
-    const container = document.getElementById('auth-container');
+// Esperamos a que todo el contenido del HTML esté cargado antes de ejecutar el script.
+document.addEventListener('DOMContentLoaded', () => {
 
-    // --- Botones para la vista de Escritorio (Desktop) ---
+    /* --- 1. LÓGICA DE LA ANIMACIÓN (SLIDER) --- */
+
+    // Obtenemos los botones y el contenedor principal por sus IDs del HTML
     const signUpButton = document.getElementById('signUpButton');
     const signInButton = document.getElementById('signInButton');
+    const container = document.getElementById('auth-container');
 
-    // --- Botones para la vista Móvil ---
-    const mobileSignUpButton = document.getElementById('mobileSignUpButton');
-    const mobileSignInButton = document.getElementById('mobileSignInButton');
-
-    // --- Lógica para cambiar de panel ---
-
-    if (signUpButton && signInButton) {
-        signUpButton.addEventListener('click', (e) => {
-            e.preventDefault();
+    // Añadimos un 'event listener' al botón "Registrarse"
+    if (signUpButton) {
+        signUpButton.addEventListener('click', () => {
+            // Añadimos la clase que activa la animación en el CSS
             container.classList.add('right-panel-active');
         });
+    }
 
-        signInButton.addEventListener('click', (e) => {
-            e.preventDefault();
+    // Añadimos un 'event listener' al botón "Iniciar Sesión"
+    if (signInButton) {
+        signInButton.addEventListener('click', () => {
+            // Quitamos la clase para revertir la animación
             container.classList.remove('right-panel-active');
         });
     }
 
-    if (mobileSignUpButton && mobileSignInButton) {
-        mobileSignUpButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            container.classList.add('right-panel-active');
-        });
+    /* --- 2. LÓGICA DE MOSTRAR/OCULTAR CONTRASEÑA --- */
 
-        mobileSignInButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            container.classList.remove('right-panel-active');
-        });
-    }
+    /**
+     * Función reutilizable para alternar la visibilidad de un campo de contraseña.
+     * @param {string} toggleButtonId - El ID del botón (el icono del "ojo").
+     * @param {string} passwordFieldId - El ID del campo de contraseña (input).
+     */
+    const setupPasswordToggle = (toggleButtonId, passwordFieldId) => {
+        const toggleButton = document.getElementById(toggleButtonId);
+        const passwordField = document.getElementById(passwordFieldId);
 
-    // --- Lógica para mostrar/ocultar contraseña (sin cambios) ---
-    const passwordWrappers = document.querySelectorAll('.form-field-wrapper');
-    passwordWrappers.forEach(wrapper => {
-        const passwordInput = wrapper.querySelector('input[type="password"]');
-        if (passwordInput) {
-            const icon = document.createElement('i');
-            icon.classList.add('fas', 'fa-eye-slash', 'password-toggle-icon');
-            icon.style.cursor = 'pointer';
-            wrapper.appendChild(icon);
+        // Nos aseguramos de que ambos elementos existan antes de añadir el listener
+        if (toggleButton && passwordField) {
+            toggleButton.addEventListener('click', () => {
+                // Cambiamos el 'type' del input
+                const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordField.setAttribute('type', type);
 
-            icon.addEventListener('click', function() {
-                const isPassword = passwordInput.getAttribute('type') === 'password';
-                if (isPassword) {
-                    passwordInput.setAttribute('type', 'text');
-                    this.classList.replace('fa-eye-slash', 'fa-eye');
-                } else {
-                    passwordInput.setAttribute('type', 'password');
-                    this.classList.replace('fa-eye', 'fa-eye-slash');
-                }
+                // Cambiamos el icono del "ojo"
+                toggleButton.classList.toggle('fa-eye');
+                toggleButton.classList.toggle('fa-eye-slash');
             });
         }
-    });
+    };
+
+    // --- Configuramos los 3 botones de contraseña ---
+    // Usamos los IDs que Django genera con los prefijos (ej. 'id_login-password')
+
+    // 1. Para el formulario de Login
+    setupPasswordToggle('toggle-password-login', 'id_login-password');
+
+    // 2. Para el formulario de Registro (Contraseña)
+    setupPasswordToggle('toggle-password-signup', 'id_signup-password');
+
+    // 3. Para el formulario de Registro (Confirmar Contraseña)
+    setupPasswordToggle('toggle-password-confirm', 'id_signup-password_confirm');
+
 });
