@@ -6,7 +6,9 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 # Importamos TU vista personalizada
-from apps.personas.views import home_view, profile_view, profile_edit_view, login_register_view, mis_reservas_view
+from apps.personas.views import home_view, profile_view, profile_edit_view, login_register_view, mis_reservas_view, \
+    cancelar_reserva, admin_usuarios_view, update_user_role, get_user_profile_api, crear_usuario_view, \
+    toggle_vista_cliente
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,6 +30,13 @@ urlpatterns = [
     path('home/', home_view, name='home'),
     path('empresas/', include('apps.empresas.urls')),
     path('mis-reservas/', mis_reservas_view, name='mis_reservas'),
+    path('api/cancelar-reserva/', cancelar_reserva, name='api_cancelar_reserva'),
+    # GESTIÓN DE USUARIOS (Custom Admin)
+    path('admin-usuarios/', admin_usuarios_view, name='admin_usuarios'),
+    path('api/update-user/', update_user_role, name='update_user_role'),
+    path('api/get-user-profile/<int:user_id>/', get_user_profile_api, name='get_user_profile_api'),
+    path('crear-usuario/', crear_usuario_view, name='crear_usuario'),
+    path('toggle-vista-cliente/', toggle_vista_cliente, name='toggle_vista_cliente'),
 ]
 
 # Configuración para servir imágenes en desarrollo

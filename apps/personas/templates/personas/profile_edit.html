@@ -1,62 +1,110 @@
 {% extends "base.html" %}
 
-{% block title %}Editar Mi Perfil{% endblock %}
+{% block title %}Editar Perfil{% endblock %}
 
 {% block content %}
-<div class="content-container" style="max-width: 600px;">
-    <h2 style="text-align: center; font-size: 1.8rem; margin-bottom: 2rem;">Editar Mi Perfil</h2>
-    
-    <form method="post">
-        {% csrf_token %}
-        
-        <div style="border-bottom: 1px solid var(--border-color); margin-bottom: 2rem; padding-bottom: 2rem;">
-            <h3 style="font-size: 1.2rem; margin-bottom: 1.5rem;">Datos de la Cuenta</h3>
-            <p class="helptext" style="margin-top: -1rem; margin-bottom: 1.5rem;">
-                (Para cambiar tu contraseña, usa la función "Olvidé mi contraseña" 
-                que implementaremos luego).
-            </p>
+    <div class="content-container">
 
-            {% if user_form.non_field_errors %}
-                <div class="errorlist">{{ user_form.non_field_errors }}</div>
-            {% endif %}
-            
-            {% for field in user_form %}
-                <div class="form-field">
-                    <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
-                    <div class="form-field-wrapper">
-                        {% if field.name == 'username' %}<i class="icon fa-solid fa-user"></i>{% endif %}
-                        {% if field.name == 'email' %}<i class="icon fa-solid fa-envelope"></i>{% endif %}
-                        {{ field }}
+        <!-- Header Sólido -->
+        <div class="sport-header-panel">
+            <div>
+                <h1 class="sport-header-title"><i class="fa-solid fa-user-pen"></i> Editar Perfil</h1>
+                <p class="sport-header-subtitle">Actualiza tu información personal y de contacto.</p>
+            </div>
+        </div>
+
+        <!-- Tarjeta del Formulario -->
+        <div class="sport-card" style="margin-top: 2rem;">
+            <h3 style="color: var(--primary-dark); border-bottom: 2px solid #F3F4F6; padding-bottom: 10px; margin-bottom: 20px;">
+                Información Básica
+            </h3>
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- Grid de 2 Columnas -->
+                <div class="form-grid">
+
+                    <!-- Usuario (Readonly o editable) -->
+                    <div class="form-group-sport">
+                        <label>Nombre de Usuario <span class="required">*</span></label>
+                        {{ user_form.username }} <!-- Asegúrate que en forms.py tenga class="form-control-sport" -->
                     </div>
-                    {% if field.help_text %}<p class="helptext">{{ field.help_text }}</p>{% endif %}
-                    {% for error in field.errors %}<p class="errorlist"><li>{{ error }}</li></p>{% endfor %}
-                </div>
-            {% endfor %}
-        </div>
-        
-        <div>
-            <h3 style="font-size: 1.2rem; margin-bottom: 1.5rem;">Datos Personales</h3>
-            {% for field in persona_form %}
-                <div class="form-field">
-                    <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
-                    <!-- Añadimos 'no-icon' para que el padding sea correcto -->
-                    {{ field }}
-                    {% if field.help_text %}<p class="helptext">{{ field.help_text }}</p>{% endif %}
-                    {% for error in field.errors %}<p class="errorlist"><li>{{ error }}</li></p>{% endfor %}
-                </div>
-            {% endfor %}
-        </div>
 
-        <div style="margin-top: 2rem; display: flex; justify-content: flex-end; gap: 1rem;">
-            <!-- Botón de Cancelar -->
-            <a href="{% url 'profile' %}" class="btn-cancel">
-                Cancelar
-            </a>
-            <!-- Botón de Guardar Cambios -->
-            <button type="submit" class="btn-primary" style="width: auto;">
-                Guardar Cambios
-            </button>
+                    <!-- Email -->
+                    <div class="form-group-sport">
+                        <label>Correo Electrónico <span class="required">*</span></label>
+                        {{ user_form.email }}
+                    </div>
+
+                    <!-- Nombres -->
+                    <div class="form-group-sport">
+                        <label>Nombres</label>
+                        {{ persona_form.nombre }}
+                    </div>
+
+                    <!-- Apellidos -->
+                    <div class="form-group-sport">
+                        <label>Apellidos</label>
+                        {{ persona_form.apellido }}
+                    </div>
+
+                    <!-- Genero -->
+                    <div class="form-group-sport">
+                        <label>Género</label>
+                        {{ persona_form.genero }}
+                    </div>
+
+                    <!-- Fecha Nacimiento -->
+                    <div class="form-group-sport">
+                        <label>Fecha de Nacimiento</label>
+                        {{ persona_form.fecha_nacimiento }}
+                    </div>
+
+                    <!-- Celular -->
+                    <div class="form-group-sport">
+                        <label>Celular / Teléfono</label>
+                        {{ persona_form.celular }}
+                    </div>
+
+                    <!-- Dirección (Ocupa 2 columnas) -->
+                    <div class="form-group-sport" style="grid-column: 1 / -1;">
+                        <label>Dirección Domiciliaria</label>
+                        {{ persona_form.direccion }}
+                    </div>
+                </div>
+
+                <!-- Sección Fotografía -->
+                <h3 style="color: var(--primary-dark); border-bottom: 2px solid #F3F4F6; padding-bottom: 10px; margin: 30px 0 20px 0;">
+                    Fotografía
+                </h3>
+
+                <div style="text-align: center; padding: 20px; border: 2px dashed var(--border-color); border-radius: var(--radius-md); background: #FAFAFA;">
+                    {% if user.persona.foto %}
+                        <img src="{{ user.persona.foto.url }}"
+                             style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; border: 3px solid white; box-shadow: var(--shadow-card);">
+                    {% else %}
+                        <div style="width: 100px; height: 100px; background: #E5E7EB; border-radius: 50%; margin: 0 auto 10px auto; display: flex; align-items: center; justify-content: center;">
+                            <i class="fa-solid fa-camera" style="font-size: 2rem; color: #9CA3AF;"></i>
+                        </div>
+                    {% endif %}
+                    <div style="margin-top: 10px;">
+                        {{ persona_form.foto }}
+                    </div>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div style="display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border-color);">
+                    <a href="{% url 'profile' %}" class="btn-outline"
+                       style="background: white; border: 1px solid #D1D5DB; padding: 10px 25px; border-radius: 50px; text-decoration: none; color: var(--text-main);">
+                        Cancelar
+                    </a>
+                    <button type="submit" class="btn-primary"
+                            style="padding: 10px 30px; border-radius: 50px; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);">
+                        <i class="fa-solid fa-save"></i> Guardar Cambios
+                    </button>
+                </div>
+            </form>
         </div>
-    </form>
-</div>
+    </div>
 {% endblock %}

@@ -1,0 +1,325 @@
+<!-- Modal Editar Usuario -->
+<div id="modalEditarUsuario" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 500px;">
+        <div class="modal-header">
+            <h3 style="margin: 0; color: #1F2937; font-weight: 700;">
+                <i class="fa-solid fa-user-pen" style="color: #10B981; margin-right: 8px;"></i>
+                Editar Usuario
+            </h3>
+            <button onclick="cerrarModal()" class="modal-close">&times;</button>
+        </div>
+        
+        <div class="modal-body">
+            <form id="formEditarUsuario" method="POST" action="{% url 'admin_usuarios' %}">
+                {% csrf_token %}
+                <input type="hidden" id="edit_user_id" name="user_id">
+                
+                <div class="form-group">
+                    <label for="edit_username" class="form-label">
+                        <i class="fa-solid fa-user"></i> Nombre de Usuario
+                    </label>
+                    <input type="text" id="edit_username" name="username" class="form-control" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit_rol" class="form-label">
+                        <i class="fa-solid fa-user-tag"></i> Rol
+                    </label>
+                    <select id="edit_rol" name="rol" class="form-control">
+                        <option value="CLIENTE">Cliente</option>
+                        <option value="EMPRESARIO">Empresario</option>
+                        <option value="ADMIN">Administrador</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit_estado" class="form-label">
+                        <i class="fa-solid fa-toggle-on"></i> Estado
+                    </label>
+                    <select id="edit_estado" name="estado" class="form-control">
+                        <option value="true">Activo</option>
+                        <option value="false">Inactivo</option>
+                    </select>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" onclick="cerrarModal()" class="btn-secondary">
+                        <i class="fa-solid fa-xmark"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fa-solid fa-save"></i> Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Estilos del Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow: auto;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 2px solid #E5E7EB;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: #9CA3AF;
+    cursor: pointer;
+    transition: color 0.2s;
+    line-height: 1;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+}
+
+.modal-close:hover {
+    color: #EF4444;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    padding-top: 1rem;
+    border-top: 1px solid #E5E7EB;
+    margin-top: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.form-label i {
+    color: #10B981;
+    margin-right: 6px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #E5E7EB;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #10B981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.form-control:read-only {
+    background-color: #F9FAFB;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    padding: 0.75rem 1.5rem;
+    background: #F3F4F6;
+    color: #6B7280;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    background: #E5E7EB;
+    color: #374151;
+}
+
+.btn-primary {
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #10B981, #047857);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.alert {
+    animation: slideInDown 0.3s ease;
+}
+
+@keyframes slideInDown {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+</style>
+
+<script>
+function editarUsuario(userId, username, rol, estado) {
+    // Prevenir propagación del evento
+    event.stopPropagation();
+    
+    // Llenar el formulario con los datos
+    document.getElementById('edit_user_id').value = userId;
+    document.getElementById('edit_username').value = username;
+    document.getElementById('edit_rol').value = rol;
+    document.getElementById('edit_estado').value = estado;
+    
+    // Mostrar el modal
+    document.getElementById('modalEditarUsuario').style.display = 'flex';
+}
+
+function cerrarModal() {
+    document.getElementById('modalEditarUsuario').style.display = 'none';
+}
+
+// Cerrar modal al hacer clic fuera de él
+document.addEventListener('click', function(event) {
+    const modal = document.getElementById('modalEditarUsuario');
+    const modalContent = modal ? modal.querySelector('.modal-content') : null;
+    
+    if (event.target === modal && !modalContent.contains(event.target)) {
+        cerrarModal();
+    }
+});
+
+// Cerrar modal con tecla ESC
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        cerrarModal();
+    }
+});
+
+// Auto-cerrar alertas después de 5 segundos
+document.addEventListener('DOMContentLoaded', function() {
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            alert.style.transition = 'opacity 0.5s ease';
+            alert.style.opacity = '0';
+            setTimeout(() => alert.remove(), 500);
+        }, 5000);
+    });
+});
+
+// Funciones para dar de baja y activar usuarios
+function darDeBaja(userId, username) {
+    if (confirm(`¿Estás seguro de dar de baja al usuario "${username}"?\n\nEsto desactivará su cuenta pero no borrará sus datos.`)) {
+        cambiarEstadoUsuario(userId, false);
+    }
+}
+
+function activarUsuario(userId, username) {
+    if (confirm(`¿Deseas activar al usuario "${username}"?`)) {
+        cambiarEstadoUsuario(userId, true);
+    }
+}
+
+function cambiarEstadoUsuario(userId, nuevoEstado) {
+    // Crear formulario y enviarlo
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/admin-usuarios/';
+    
+    // CSRF Token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = csrfToken;
+    form.appendChild(csrfInput);
+    
+    // User ID
+    const userIdInput = document.createElement('input');
+    userIdInput.type = 'hidden';
+    userIdInput.name = 'user_id';
+    userIdInput.value = userId;
+    form.appendChild(userIdInput);
+    
+    // Estado
+    const estadoInput = document.createElement('input');
+    estadoInput.type = 'hidden';
+    estadoInput.name = 'estado';
+    estadoInput.value = nuevoEstado ? 'true' : 'false';
+    form.appendChild(estadoInput);
+    
+    // Acción especial
+    const accionInput = document.createElement('input');
+    accionInput.type = 'hidden';
+    accionInput.name = 'accion';
+    accionInput.value = 'cambiar_estado';
+    form.appendChild(accionInput);
+    
+    document.body.appendChild(form);
+    form.submit();
+}
+</script>

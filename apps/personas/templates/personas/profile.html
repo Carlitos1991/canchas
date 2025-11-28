@@ -1,61 +1,111 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Mi Perfil{% endblock %}
 
 {% block content %}
-<div class="content-container" style="max-width: 700px;">
-    <h2 style="font-size: 1.8rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 2rem;">
-        Perfil de {{ user.username }}
-    </h2>
-    
-    {% if persona %}
-        <div class="profile-grid">
-            
-            <div class="profile-label">Nombre:</div>
-            <div class="profile-data">{{ persona.nombre }}</div>
+    <div class="content-container">
 
-            <div class="profile-label">Apellido:</div>
-            <div class="profile-data">{{ persona.apellido }}</div>
-
-            <div class="profile-label">Email:</div>
-            <div class="profile-data">{{ user.email }}</div>
-
-            <div class="profile-label">Género:</div>
-            <div class="profile-data">{{ persona.get_genero_display }}</div>
-
-            <div class="profile-label">Fecha de Nacimiento:</div>
-            <div class="profile-data">{{ persona.fecha_nacimiento|date:"d \d\e F \d\e Y" }}</div>
-
-            <div class="profile-label">Dirección:</div>
-            <div class="profile-data">{{ persona.direccion|default:"No especificada" }}</div>
-
-            <div class="profile-label">Celular:</div>
-            <div class="profile-data">{{ persona.celular|default:"No especificado" }}</div>
-
-            <div class="profile-label">Estado:</div>
-            <div class="profile-data">
-                {% if persona.estado %}
-                    <span class="profile-status profile-status-active">
-                        Activo
-                    </span>
-                {% else %}
-                    <span class="profile-status profile-status-inactive">
-                        Inactivo
-                    </span>
-                {% endif %}
+        <div class="dashboard-header">
+            <div>
+                <h1 class="dashboard-title">Mi Perfil</h1>
+                <p class="dashboard-subtitle">Gestiona tu información personal y cuenta.</p>
             </div>
         </div>
-        <div class="profile-actions">
-            <a href="{% url 'profile_edit' %}" class="btn-edit">
-                Editar Perfil
-            </a>
-        </div>
-        
-    {% else %}
-        <div style="background-color: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 1rem; border-radius: 5px;">
-            <strong style="font-weight: bold;">Información:</strong>
-            <span>Este usuario no tiene un perfil de "Persona" asociado.</span>
-        </div>
-    {% endif %}
-</div>
+
+        {% if persona %}
+            <div class="profile-wrapper">
+
+                <!-- COLUMNA IZQUIERDA: Tarjeta Principal -->
+                <div class="profile-sidebar-card">
+                    {% if persona.foto %}
+                        <img src="{{ persona.foto.url }}" alt="Avatar" class="profile-avatar-large">
+                    {% else %}
+                        <img src="{% static 'media/default_avatar.png' %}" alt="Avatar" class="profile-avatar-large">
+                        <!-- Asegúrate de tener una imagen default o usar un placeholder de internet -->
+                    {% endif %}
+
+                    <div class="profile-name">{{ persona.nombre }} {{ persona.apellido }}</div>
+                    <div class="profile-role">{{ persona.get_rol_display }}</div>
+
+                    <div style="margin-top: 1.5rem; border-top: 1px solid var(--border-light); padding-top: 1.5rem;">
+                        <div class="detail-label">Estado de cuenta</div>
+                        <div style="margin-top: 5px;">
+                            {% if persona.estado %}
+                                <span class="status-indicator status-active"><i class="fa-solid fa-circle-check"></i> Activo</span>
+                            {% else %}
+                                <span class="status-indicator status-inactive"><i class="fa-solid fa-circle-xmark"></i> Inactivo</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <a href="{% url 'profile_edit' %}" class="btn-edit-floating">
+                        <i class="fa-solid fa-pen-to-square"></i> Editar Perfil
+                    </a>
+                </div>
+
+                <!-- COLUMNA DERECHA: Detalles -->
+                <div class="profile-details-card">
+                    <h3 style="margin-top: 0; color: var(--secondary-color); border-bottom: 1px solid var(--border-light); padding-bottom: 1rem;">
+                        Información Personal
+                    </h3>
+
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">Usuario</span>
+                            <span class="detail-value">@{{ user.username }}</span>
+                        </div>
+
+                        <div class="detail-item">
+                            <span class="detail-label">Correo Electrónico</span>
+                            <span class="detail-value">
+                        <i class="fa-regular fa-envelope" style="color: var(--primary-color);"></i>
+                        {{ user.email }}
+                    </span>
+                        </div>
+
+                        <div class="detail-item">
+                            <span class="detail-label">Número de Celular</span>
+                            <span class="detail-value">
+                        <i class="fa-solid fa-mobile-screen" style="color: var(--primary-color);"></i>
+                        {{ persona.celular|default:"-- --" }}
+                    </span>
+                        </div>
+
+                        <div class="detail-item">
+                            <span class="detail-label">Fecha de Nacimiento</span>
+                            <span class="detail-value">
+                        <i class="fa-regular fa-calendar" style="color: var(--primary-color);"></i>
+                        {{ persona.fecha_nacimiento|date:"d M, Y"|default:"No definida" }}
+                    </span>
+                        </div>
+
+                        <div class="detail-item">
+                            <span class="detail-label">Género</span>
+                            <span class="detail-value">{{ persona.get_genero_display|default:"No especificado" }}</span>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-top: 2rem; color: var(--secondary-color); border-bottom: 1px solid var(--border-light); padding-bottom: 1rem;">
+                        Ubicación
+                    </h3>
+                    <div class="details-grid">
+                        <div class="detail-item" style="grid-column: 1 / -1;">
+                            <span class="detail-label">Dirección</span>
+                            <span class="detail-value">
+                        <i class="fa-solid fa-map-pin" style="color: var(--primary-color);"></i>
+                        {{ persona.direccion|default:"Dirección no registrada" }}
+                    </span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        {% else %}
+            <!-- Fallback por si no existe perfil -->
+            <div class="alert-box">
+                No se encontró información de perfil. Por favor contacte soporte.
+            </div>
+        {% endif %}
+    </div>
 {% endblock %}

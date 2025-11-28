@@ -4,8 +4,8 @@
 {% block title %}Iniciar Sesión o Registrarse{% endblock %}
 
 {% block content %}
-    <div id="auth-container" class="auth-container {% if show_signup %}right-panel-active{% endif %}"
-         style="margin-top: 2rem;">
+<div class="auth-page-wrapper">
+    <div id="auth-container" class="auth-container {% if show_signup %}right-panel-active{% endif %}">
 
         <!-- =================================== -->
         <!-- 1. FORMULARIO DE REGISTRO (Sign Up) -->
@@ -13,54 +13,71 @@
         <div class="form-auth-container sign-up-container">
             <form method="post" novalidate>
                 {% csrf_token %}
-                <h2>Crear Cuenta</h2>
+                <div class="auth-header">
+                    <h2>Crear Cuenta</h2>
+                    <p class="auth-subtitle">Únete a nuestra comunidad deportiva</p>
+                </div>
 
                 <div class="social-icons">
-                    <a href="#"><i class="fab fa-google"></i></a>
-                    <a href="#"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#"><i class="fab fa-github"></i></a>
-                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="social-icon" title="Continuar con Google">
+                        <i class="fab fa-google"></i>
+                    </a>
+                    <a href="#" class="social-icon" title="Continuar con Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="social-icon" title="Continuar con GitHub">
+                        <i class="fab fa-github"></i>
+                    </a>
                 </div>
-                <p class="social-login-divider">o usa tu email para registrarte</p>
+                <p class="social-login-divider">
+                    <span>o usa tu email</span>
+                </p>
 
                 <!-- Errores Generales -->
                 {% if user_form.non_field_errors %}
-                    <div class="form-field">
-                        <ul class="errorlist" style="position: relative; bottom: 0;">
+                    <div class="alert-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <ul class="errorlist">
                             {% for error in user_form.non_field_errors %}
-                                <li>{{ error }}</li>{% endfor %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
                         </ul>
                     </div>
                 {% endif %}
 
                 <!-- Usuario -->
-                <div class="form-field"> <!-- ESTE DIV DA EL ESPACIO -->
-                    <div class="form-field-wrapper">
+                <div class="form-field">
+                    <div class="form-field-wrapper {% if user_form.username.errors %}error{% endif %}">
                         <i class="icon fas fa-user"></i>
                         {{ user_form.username }}
                     </div>
-                    <!-- Errores específicos del campo -->
                     {% if user_form.username.errors %}
-                        <ul class="errorlist">{% for error in user_form.username.errors %}
-                            <li>{{ error }}</li>{% endfor %}</ul>
+                        <ul class="errorlist">
+                            {% for error in user_form.username.errors %}
+                                <li><i class="fas fa-info-circle"></i> {{ error }}</li>
+                            {% endfor %}
+                        </ul>
                     {% endif %}
                 </div>
 
                 <!-- Email -->
-                <div class="form-field"> <!-- ESTE DIV DA EL ESPACIO -->
-                    <div class="form-field-wrapper">
+                <div class="form-field">
+                    <div class="form-field-wrapper {% if user_form.email.errors %}error{% endif %}">
                         <i class="icon fas fa-envelope"></i>
                         {{ user_form.email }}
                     </div>
                     {% if user_form.email.errors %}
-                        <ul class="errorlist">{% for error in user_form.email.errors %}
-                            <li>{{ error }}</li>{% endfor %}</ul>
+                        <ul class="errorlist">
+                            {% for error in user_form.email.errors %}
+                                <li><i class="fas fa-info-circle"></i> {{ error }}</li>
+                            {% endfor %}
+                        </ul>
                     {% endif %}
                 </div>
 
                 <!-- Contraseña -->
-                <div class="form-field"> <!-- ESTE DIV DA EL ESPACIO -->
-                    <div class="form-field-wrapper">
+                <div class="form-field">
+                    <div class="form-field-wrapper {% if user_form.password.errors %}error{% endif %}">
                         <i class="icon fas fa-lock"></i>
                         {{ user_form.password }}
                         <i class="fas fa-eye password-toggle-icon"
@@ -68,14 +85,17 @@
                            onclick="togglePassword('reg_password', 'toggle_reg_password')"></i>
                     </div>
                     {% if user_form.password.errors %}
-                        <ul class="errorlist">{% for error in user_form.password.errors %}
-                            <li>{{ error }}</li>{% endfor %}</ul>
+                        <ul class="errorlist">
+                            {% for error in user_form.password.errors %}
+                                <li><i class="fas fa-info-circle"></i> {{ error }}</li>
+                            {% endfor %}
+                        </ul>
                     {% endif %}
                 </div>
 
                 <!-- Confirmar Contraseña -->
-                <div class="form-field"> <!-- ESTE DIV DA EL ESPACIO -->
-                    <div class="form-field-wrapper">
+                <div class="form-field">
+                    <div class="form-field-wrapper {% if user_form.password_confirm.errors %}error{% endif %}">
                         <i class="icon fas fa-check-double"></i>
                         {{ user_form.password_confirm }}
                         <i class="fas fa-eye password-toggle-icon"
@@ -83,12 +103,21 @@
                            onclick="togglePassword('reg_confirm', 'toggle_reg_confirm')"></i>
                     </div>
                     {% if user_form.password_confirm.errors %}
-                        <ul class="errorlist">{% for error in user_form.password_confirm.errors %}
-                            <li>{{ error }}</li>{% endfor %}</ul>
+                        <ul class="errorlist">
+                            {% for error in user_form.password_confirm.errors %}
+                                <li><i class="fas fa-info-circle"></i> {{ error }}</li>
+                            {% endfor %}
+                        </ul>
                     {% endif %}
                 </div>
 
-                <button type="submit" name="signup_submit" class="btn-primary">Registrarse</button>
+                <button type="submit" name="signup_submit" class="btn-primary">
+                    <i class="fas fa-user-plus"></i> Registrarse
+                </button>
+                
+                <p class="mobile-switch">
+                    ¿Ya tienes cuenta? <a href="#" id="mobileSignIn">Inicia sesión aquí</a>
+                </p>
             </form>
         </div>
 
@@ -98,45 +127,82 @@
         <div class="form-auth-container sign-in-container">
             <form method="post" novalidate>
                 {% csrf_token %}
-                <img src="{% static 'media/icono.png' %}" alt="Logo Canchas" class="auth-logo">
-                <h2>Iniciar Sesión</h2>
+                <div class="auth-header">
+                    <img src="{% static 'media/icono.png' %}" alt="Logo Canchas" class="auth-logo">
+                    <h2>Bienvenido</h2>
+                    <p class="auth-subtitle">Inicia sesión para continuar</p>
+                </div>
 
                 <div class="social-icons">
-                    <a href="#"><i class="fab fa-google"></i></a>
-                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social-icon" title="Continuar con Google">
+                        <i class="fab fa-google"></i>
+                    </a>
+                    <a href="#" class="social-icon" title="Continuar con Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
                 </div>
-                <p class="social-login-divider">o usa tu cuenta</p>
+                <p class="social-login-divider">
+                    <span>o usa tu cuenta</span>
+                </p>
 
                 <!-- Errores generales de login -->
                 {% if login_form.non_field_errors %}
-                    <ul class="errorlist">{% for error in login_form.non_field_errors %}
-                        <li>{{ error }}</li>{% endfor %}</ul>
+                    <div class="alert-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <ul class="errorlist">
+                            {% for error in login_form.non_field_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
                 {% endif %}
 
                 <!-- Usuario Login -->
                 <div class="form-field">
-                    <div class="form-field-wrapper">
+                    <div class="form-field-wrapper {% if login_form.username.errors %}error{% endif %}">
                         <i class="icon fas fa-user"></i>
                         {{ login_form.username }}
                     </div>
-                    {{ login_form.username.errors }}
+                    {% if login_form.username.errors %}
+                        <ul class="errorlist">
+                            {% for error in login_form.username.errors %}
+                                <li><i class="fas fa-info-circle"></i> {{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
                 </div>
 
-                <!-- Contraseña Login (ID generado: login_password) -->
-                <div class="form-field-wrapper">
-                    <i class="icon fas fa-lock"></i>
-                    {{ login_form.password }}
-                    <!-- AGREGAMOS onclick DIRECTO -->
-                    <i class="fas fa-eye password-toggle-icon"
-                       id="toggle_login_password"
-                       onclick="togglePassword('login_password', 'toggle_login_password')"></i>
+                <!-- Contraseña Login -->
+                <div class="form-field">
+                    <div class="form-field-wrapper {% if login_form.password.errors %}error{% endif %}">
+                        <i class="icon fas fa-lock"></i>
+                        {{ login_form.password }}
+                        <i class="fas fa-eye password-toggle-icon"
+                           id="toggle_login_password"
+                           onclick="togglePassword('login_password', 'toggle_login_password')"></i>
+                    </div>
+                    {% if login_form.password.errors %}
+                        <ul class="errorlist">
+                            {% for error in login_form.password.errors %}
+                                <li><i class="fas fa-info-circle"></i> {{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
                 </div>
 
                 <div class="forgot-password">
-                    <a href="#">¿Olvidaste tu contraseña?</a>
+                    <a href="#">
+                        <i class="fas fa-question-circle"></i> ¿Olvidaste tu contraseña?
+                    </a>
                 </div>
 
-                <button type="submit" name="login_submit" class="btn-primary">Iniciar Sesión</button>
+                <button type="submit" name="login_submit" class="btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                </button>
+                
+                <p class="mobile-switch">
+                    ¿No tienes cuenta? <a href="#" id="mobileSignUp">Regístrate aquí</a>
+                </p>
             </form>
         </div>
 
@@ -146,19 +212,31 @@
         <div class="overlay-container">
             <div class="overlay">
                 <div class="overlay-panel overlay-left">
-                    <img src="{% static 'media/icono.png' %}" alt="Logo Canchas" class="auth-logo">
-                    <h2>¡Bienvenido de Nuevo!</h2>
-                    <p>Para seguir conectado con nosotros, por favor inicia sesión con tu cuenta</p>
-                    <button class="btn-secondary" id="signInButton">Iniciar Sesión</button>
+                    <div class="overlay-content">
+                        <img src="{% static 'media/icono.png' %}" alt="Logo Canchas" class="overlay-logo">
+                        <h2>¡Bienvenido de Nuevo!</h2>
+                        <p>¿Ya tienes una cuenta? Inicia sesión y continúa disfrutando de nuestras canchas deportivas</p>
+                        <button class="btn-secondary" id="signInButton">
+                            <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                        </button>
+                    </div>
                 </div>
                 <div class="overlay-panel overlay-right">
-                    <h2>¡Hola, Amigo!</h2>
-                    <p>Ingresa tus datos personales y comienza tus reservas</p>
-                    <button class="btn-secondary" id="signUpButton">Registrarse</button>
+                    <div class="overlay-content">
+                        <div class="overlay-icon">
+                            <i class="fas fa-futbol"></i>
+                        </div>
+                        <h2>¡Únete a Nosotros!</h2>
+                        <p>Crea una cuenta y accede a las mejores canchas deportivas de tu ciudad. ¡Reserva en minutos!</p>
+                        <button class="btn-secondary" id="signUpButton">
+                            <i class="fas fa-user-plus"></i> Registrarse
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
     <script src="{% static 'js/auth.js' %}"></script>
 {% endblock %}

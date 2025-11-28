@@ -1,43 +1,27 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const sidebar = document.querySelector('.sidebar');
-    const sidebarToggle = document.getElementById('sidebar-toggle');
-    const themeToggle = document.getElementById('theme-toggle-checkbox'); // Corregido para apuntar al checkbox
-    const body = document.body;
-
-    // --- 1. Cargar preferencias guardadas al iniciar ---
-
-    // Cargar estado del sidebar
-    const isSidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-    if (isSidebarCollapsed) {
-        sidebar.classList.add('collapsed');
-    }
-
-    // Cargar estado del modo oscuro
-    const isDarkMode = localStorage.getItem('darkMode') === 'true';
-    if (isDarkMode) {
-        body.classList.add('dark-mode');
-        if (themeToggle) {
-            themeToggle.checked = true;
+    console.log('🏟️ Sistema de Canchas - Iniciado');
+    
+    // --- Resaltar el link activo en el sidebar ---
+    const currentPath = window.location.pathname;
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    navLinks.forEach(link => {
+        const linkPath = new URL(link.href).pathname;
+        if (linkPath === currentPath) {
+            link.classList.add('active');
         }
-    }
+    });
 
-    // --- 2. Event Listener para el Sidebar ---
-    if (sidebarToggle) {
-        sidebarToggle.addEventListener('click', () => {
-            sidebar.classList.toggle('collapsed');
-            // Guardar la preferencia
-            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+    // --- Efecto de hover en las tarjetas ---
+    const cards = document.querySelectorAll('.stat-card-modern, .cancha-card, .reserva-card');
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px)';
         });
-    }
-
-    // --- 3. Event Listener para el Modo Oscuro ---
-    if (themeToggle) {
-        themeToggle.addEventListener('click', () => {
-            body.classList.toggle('dark-mode');
-            // Guardar la preferencia
-            localStorage.setItem('darkMode', body.classList.contains('dark-mode'));
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
         });
-    }
+    });
 });
 
 // Función estándar de Django para obtener cookies (CSRF)

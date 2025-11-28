@@ -1,0 +1,400 @@
+<!-- Modal Ver Perfil de Usuario -->
+<div id="modalVerPerfil" class="modal-overlay" style="display: none;">
+    <div class="modal-container modal-large">
+        <div class="modal-header-modern">
+            <h3 class="modal-title-modern">
+                <i class="fa-solid fa-user-circle"></i>
+                Perfil de Usuario
+            </h3>
+            <button onclick="cerrarModalPerfil()" class="modal-close-btn">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        
+        <div class="modal-body-modern">
+            <div class="profile-modal-grid">
+                <!-- Columna Izquierda - Avatar y Datos Básicos -->
+                <div class="profile-modal-sidebar">
+                    <div class="profile-avatar-section">
+                        <div id="perfil_avatar" class="profile-avatar-large-modern">
+                            <!-- Avatar dinámico -->
+                        </div>
+                        <h4 id="perfil_nombre_completo" class="profile-name-modal">Nombre Usuario</h4>
+                        <p id="perfil_username" class="profile-username-modal">@username</p>
+                        <span id="perfil_rol_badge" class="role-badge role-cliente">Cliente</span>
+                    </div>
+                    
+                    <div class="profile-stats-section">
+                        <div class="profile-stat-item">
+                            <i class="fa-solid fa-calendar-plus"></i>
+                            <div>
+                                <div class="stat-label">Miembro desde</div>
+                                <div id="perfil_fecha_registro" class="stat-value">--</div>
+                            </div>
+                        </div>
+                        <div class="profile-stat-item">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <div>
+                                <div class="stat-label">Estado</div>
+                                <div id="perfil_estado_texto" class="stat-value">Activo</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna Derecha - Información Detallada -->
+                <div class="profile-modal-content">
+                    <!-- Sección: Información de Contacto -->
+                    <div class="info-section-modal">
+                        <h5 class="info-section-title">
+                            <i class="fa-solid fa-address-card"></i>
+                            Información de Contacto
+                        </h5>
+                        <div class="info-grid-modal">
+                            <div class="info-item-modal">
+                                <label>Email</label>
+                                <div class="info-value-modal">
+                                    <i class="fa-regular fa-envelope"></i>
+                                    <span id="perfil_email">email@ejemplo.com</span>
+                                </div>
+                            </div>
+                            <div class="info-item-modal">
+                                <label>Teléfono</label>
+                                <div class="info-value-modal">
+                                    <i class="fa-solid fa-phone"></i>
+                                    <span id="perfil_telefono">--</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sección: Información Personal -->
+                    <div class="info-section-modal">
+                        <h5 class="info-section-title">
+                            <i class="fa-solid fa-user"></i>
+                            Información Personal
+                        </h5>
+                        <div class="info-grid-modal">
+                            <div class="info-item-modal">
+                                <label>Nombre Completo</label>
+                                <div class="info-value-modal">
+                                    <span id="perfil_nombre_apellido">--</span>
+                                </div>
+                            </div>
+                            <div class="info-item-modal">
+                                <label>Fecha de Nacimiento</label>
+                                <div class="info-value-modal">
+                                    <i class="fa-regular fa-calendar"></i>
+                                    <span id="perfil_fecha_nacimiento">--</span>
+                                </div>
+                            </div>
+                            <div class="info-item-modal">
+                                <label>Género</label>
+                                <div class="info-value-modal">
+                                    <span id="perfil_genero">--</span>
+                                </div>
+                            </div>
+                            <div class="info-item-modal">
+                                <label>Dirección</label>
+                                <div class="info-value-modal">
+                                    <i class="fa-solid fa-location-dot"></i>
+                                    <span id="perfil_direccion">--</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sección: Actividad -->
+                    <div class="info-section-modal">
+                        <h5 class="info-section-title">
+                            <i class="fa-solid fa-chart-line"></i>
+                            Actividad
+                        </h5>
+                        <div class="activity-summary">
+                            <div class="activity-item">
+                                <i class="fa-solid fa-calendar-check"></i>
+                                <span>Última actualización: <strong id="perfil_ultima_actualizacion">--</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer-modern">
+            <button onclick="cerrarModalPerfil()" class="btn-modal-secondary">
+                <i class="fa-solid fa-xmark"></i> Cerrar
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Función para ver perfil completo del usuario
+function verPerfil(userId) {
+    // Hacer petición AJAX para obtener datos del usuario
+    fetch(`/api/get-user-profile/${userId}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Rellenar datos en el modal
+                const user = data.user;
+                const persona = data.persona;
+                
+                // Avatar
+                const avatarDiv = document.getElementById('perfil_avatar');
+                if (persona.foto) {
+                    avatarDiv.innerHTML = `<img src="${persona.foto}" alt="${user.username}">`;
+                } else {
+                    avatarDiv.innerHTML = user.username.charAt(0).toUpperCase();
+                    avatarDiv.classList.add('avatar-placeholder');
+                }
+                
+                // Datos básicos
+                document.getElementById('perfil_nombre_completo').textContent = 
+                    persona.nombre && persona.apellido ? `${persona.nombre} ${persona.apellido}` : user.username;
+                document.getElementById('perfil_username').textContent = `@${user.username}`;
+                
+                // Rol badge
+                const rolBadge = document.getElementById('perfil_rol_badge');
+                if (persona.rol === 'ADMIN') {
+                    rolBadge.className = 'role-badge role-admin';
+                    rolBadge.innerHTML = '<i class="fa-solid fa-user-shield"></i> Administrador';
+                } else if (persona.rol === 'EMPRESARIO') {
+                    rolBadge.className = 'role-badge role-empresario';
+                    rolBadge.innerHTML = '<i class="fa-solid fa-briefcase"></i> Empresario';
+                } else {
+                    rolBadge.className = 'role-badge role-cliente';
+                    rolBadge.innerHTML = '<i class="fa-solid fa-user"></i> Cliente';
+                }
+                
+                // Fechas
+                document.getElementById('perfil_fecha_registro').textContent = user.date_joined;
+                document.getElementById('perfil_estado_texto').textContent = persona.estado ? 'Activo' : 'Inactivo';
+                
+                // Contacto
+                document.getElementById('perfil_email').textContent = user.email || '--';
+                document.getElementById('perfil_telefono').textContent = persona.celular || 'Sin teléfono';
+                
+                // Información personal
+                document.getElementById('perfil_nombre_apellido').textContent = 
+                    persona.nombre && persona.apellido ? `${persona.nombre} ${persona.apellido}` : 'No especificado';
+                document.getElementById('perfil_fecha_nacimiento').textContent = persona.fecha_nacimiento || 'No especificada';
+                document.getElementById('perfil_genero').textContent = persona.genero || 'No especificado';
+                document.getElementById('perfil_direccion').textContent = persona.direccion || 'No especificada';
+                
+                // Actividad
+                document.getElementById('perfil_ultima_actualizacion').textContent = persona.actualizado_en || '--';
+                
+                // Mostrar modal
+                document.getElementById('modalVerPerfil').style.display = 'flex';
+            } else {
+                alert('Error al cargar el perfil del usuario');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al cargar el perfil del usuario');
+        });
+}
+
+function cerrarModalPerfil() {
+    document.getElementById('modalVerPerfil').style.display = 'none';
+}
+
+// Cerrar modal al hacer clic fuera
+document.addEventListener('click', function(event) {
+    const modal = document.getElementById('modalVerPerfil');
+    if (event.target === modal) {
+        cerrarModalPerfil();
+    }
+});
+</script>
+
+<style>
+/* Estilos del Modal de Perfil */
+.modal-large {
+    max-width: 900px;
+}
+
+.profile-modal-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 2rem;
+}
+
+.profile-modal-sidebar {
+    background: linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%);
+    border-radius: 12px;
+    padding: 2rem 1.5rem;
+}
+
+.profile-avatar-section {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.profile-avatar-large-modern {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    background: linear-gradient(135deg, #10B981, #047857);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: white;
+    font-weight: 700;
+    box-shadow: 0 8px 16px rgba(16, 185, 129, 0.2);
+    overflow: hidden;
+}
+
+.profile-avatar-large-modern img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-name-modal {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1F2937;
+    margin: 0 0 0.25rem 0;
+}
+
+.profile-username-modal {
+    color: #6B7280;
+    font-size: 0.95rem;
+    margin: 0 0 1rem 0;
+}
+
+.profile-stats-section {
+    border-top: 1px solid #E5E7EB;
+    padding-top: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.profile-stat-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+}
+
+.profile-stat-item i {
+    font-size: 1.5rem;
+    color: #10B981;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: #6B7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1F2937;
+}
+
+.profile-modal-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.info-section-modal {
+    background: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.info-section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1F2937;
+    margin: 0 0 1rem 0;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #F3F4F6;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.info-section-title i {
+    color: #10B981;
+}
+
+.info-grid-modal {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+}
+
+.info-item-modal {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.info-item-modal label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6B7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-value-modal {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    color: #1F2937;
+    padding: 0.5rem 0.75rem;
+    background: #F9FAFB;
+    border-radius: 6px;
+}
+
+.info-value-modal i {
+    color: #10B981;
+}
+
+.activity-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: #F9FAFB;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: #6B7280;
+}
+
+.activity-item i {
+    color: #10B981;
+}
+
+@media (max-width: 768px) {
+    .profile-modal-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .info-grid-modal {
+        grid-template-columns: 1fr;
+    }
+}
+</style>

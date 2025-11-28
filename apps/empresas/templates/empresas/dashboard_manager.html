@@ -4,76 +4,243 @@
 {% block title %}Panel de Control{% endblock %}
 
 {% block content %}
-<div class="content-container">
-    <div class="header-section">
-        <div>
-            <h1 class="page-title">Panel de Control</h1>
-            <p class="text-muted">Resumen de actividad de tus complejos deportivos.</p>
-        </div>
-        <a href="{% url 'gestion_canchas' %}" class="btn-primary">
-            <i class="fa-solid fa-gear"></i> Gestionar Canchas
-        </a>
-    </div>
+    <div class="content-container">
 
-    <!-- Tarjetas de Resumen (KPIs) -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon bg-blue"><i class="fa-solid fa-calendar-check"></i></div>
-            <div class="stat-info">
-                <h3>12</h3>
-                <p>Reservas Hoy</p>
+        <!-- HEADER DEL DASHBOARD -->
+        <div class="dashboard-header-modern">
+            <div class="dashboard-welcome">
+                <h1 class="dashboard-title-modern">
+                    <i class="fas fa-chart-line"></i>
+                    Panel de Control
+                </h1>
+                <p class="dashboard-subtitle-modern">
+                    <i class="far fa-calendar-alt"></i>
+                    Bienvenido de nuevo, <strong>{{ user.username }}</strong>. Aquí está el resumen de hoy.
+                </p>
+            </div>
+            <div class="dashboard-actions">
+                <a href="{% url 'gestion_canchas' %}" class="btn-primary-modern">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Gestionar Negocio</span>
+                </a>
             </div>
         </div>
-        <div class="stat-card">
-            <div class="stat-icon bg-green"><i class="fa-solid fa-sack-dollar"></i></div>
-            <div class="stat-info">
-                <h3>$450</h3>
-                <p>Ingresos Hoy</p>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon bg-purple"><i class="fa-solid fa-users"></i></div>
-            <div class="stat-info">
-                <h3>5</h3>
-                <p>Nuevos Clientes</p>
-            </div>
-        </div>
-    </div>
 
-    <h2 class="section-title">Próximas Reservas</h2>
-    <div class="table-container">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Hora</th>
-                    <th>Cancha</th>
-                    <th>Cliente</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Aquí iterarías sobre las reservas reales -->
-                <tr>
-                    <td>18:00 - 19:00</td>
-                    <td>Cancha Principal</td>
-                    <td>Juan Pérez</td>
-                    <td><span class="badge badge-confirmed">Confirmado</span></td>
-                    <td>
-                        <button class="btn-icon"><i class="fa-solid fa-eye"></i></button>
-                    </td>
-                </tr>
-                 <tr>
-                    <td>19:00 - 20:00</td>
-                    <td>Cancha 2</td>
-                    <td>Maria Gomez</td>
-                    <td><span class="badge badge-pending">Pendiente</span></td>
-                    <td>
-                        <button class="btn-icon"><i class="fa-solid fa-eye"></i></button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <!-- TARJETAS DE ESTADÍSTICAS (KPIs) -->
+        <div class="stats-grid-modern">
+            <div class="stat-card-modern stat-card-primary">
+                <div class="stat-header">
+                    <div class="stat-icon-modern">
+                        <i class="fa-regular fa-calendar-check"></i>
+                    </div>
+                    <span class="stat-trend stat-trend-up">
+                        <i class="fas fa-arrow-up"></i> 12%
+                    </span>
+                </div>
+                <div class="stat-body">
+                    <h3 class="stat-number">12</h3>
+                    <p class="stat-label">Reservas Hoy</p>
+                </div>
+                <div class="stat-footer">
+                    <span class="stat-detail">
+                        <i class="fas fa-clock"></i> 3 pendientes
+                    </span>
+                </div>
+            </div>
+
+            <div class="stat-card-modern stat-card-success">
+                <div class="stat-header">
+                    <div class="stat-icon-modern">
+                        <i class="fa-solid fa-dollar-sign"></i>
+                    </div>
+                    <span class="stat-trend stat-trend-up">
+                        <i class="fas fa-arrow-up"></i> 8%
+                    </span>
+                </div>
+                <div class="stat-body">
+                    <h3 class="stat-number">$450.00</h3>
+                    <p class="stat-label">Ingresos Estimados</p>
+                </div>
+                <div class="stat-footer">
+                    <span class="stat-detail">
+                        <i class="fas fa-chart-bar"></i> vs. semana pasada
+                    </span>
+                </div>
+            </div>
+
+            <div class="stat-card-modern stat-card-purple">
+                <div class="stat-header">
+                    <div class="stat-icon-modern">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <span class="stat-trend stat-trend-up">
+                        <i class="fas fa-arrow-up"></i> 5
+                    </span>
+                </div>
+                <div class="stat-body">
+                    <h3 class="stat-number">5</h3>
+                    <p class="stat-label">Clientes Nuevos</p>
+                </div>
+                <div class="stat-footer">
+                    <span class="stat-detail">
+                        <i class="fas fa-user-plus"></i> Esta semana
+                    </span>
+                </div>
+            </div>
+
+            <div class="stat-card-modern stat-card-warning">
+                <div class="stat-header">
+                    <div class="stat-icon-modern">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <span class="stat-trend">
+                        <i class="fas fa-minus"></i> 0
+                    </span>
+                </div>
+                <div class="stat-body">
+                    <h3 class="stat-number">2</h3>
+                    <p class="stat-label">Pendientes</p>
+                </div>
+                <div class="stat-footer">
+                    <span class="stat-detail">
+                        <i class="fas fa-exclamation-circle"></i> Requieren atención
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN DE TABLA MODERNA -->
+        <div class="card-modern">
+            <div class="card-header-modern">
+                <div class="card-title-group">
+                    <h3 class="card-title-modern">
+                        <i class="fas fa-calendar-days"></i>
+                        Próximas Reservas
+                    </h3>
+                    <p class="card-subtitle-modern">Gestiona las reservas programadas para hoy</p>
+                </div>
+                <button class="btn-outline-modern">
+                    <i class="fas fa-list"></i> Ver Todo
+                </button>
+            </div>
+
+            <div class="table-wrapper-modern">
+                <table class="table-modern">
+                    <thead>
+                        <tr>
+                            <th>
+                                <i class="fas fa-clock"></i> Hora
+                            </th>
+                            <th>
+                                <i class="fas fa-futbol"></i> Cancha
+                            </th>
+                            <th>
+                                <i class="fas fa-user"></i> Cliente
+                            </th>
+                            <th class="text-center">
+                                <i class="fas fa-circle-check"></i> Estado
+                            </th>
+                            <th class="text-center">
+                                <i class="fas fa-sliders"></i> Acciones
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="table-row-modern">
+                            <td>
+                                <div class="time-badge">
+                                    <i class="fas fa-clock"></i>
+                                    <span>18:00 - 19:00</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="court-info">
+                                    <div class="court-icon">
+                                        <i class="fas fa-futbol"></i>
+                                    </div>
+                                    <div>
+                                        <strong>Cancha Principal</strong>
+                                        <span class="court-type">Fútbol 7</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="client-info">
+                                    <div class="client-avatar">JP</div>
+                                    <div>
+                                        <strong>Juan Pérez</strong>
+                                        <span class="client-email">juan@email.com</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <span class="status-badge status-confirmed">
+                                    <i class="fas fa-check-circle"></i> Confirmado
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <div class="action-buttons">
+                                    <button class="btn-icon-modern btn-icon-view" title="Ver detalles">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn-icon-modern btn-icon-edit" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn-icon-modern btn-icon-more" title="Más opciones">
+                                        <i class="fas fa-ellipsis-vertical"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="table-row-modern">
+                            <td>
+                                <div class="time-badge">
+                                    <i class="fas fa-clock"></i>
+                                    <span>19:00 - 20:00</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="court-info">
+                                    <div class="court-icon">
+                                        <i class="fas fa-futbol"></i>
+                                    </div>
+                                    <div>
+                                        <strong>Cancha #2</strong>
+                                        <span class="court-type">Fútbol 5</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="client-info">
+                                    <div class="client-avatar">MG</div>
+                                    <div>
+                                        <strong>María Gómez</strong>
+                                        <span class="client-email">maria@email.com</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <span class="status-badge status-pending">
+                                    <i class="fas fa-clock"></i> Pendiente
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <div class="action-buttons">
+                                    <button class="btn-icon-modern btn-icon-view" title="Ver detalles">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn-icon-modern btn-icon-edit" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn-icon-modern btn-icon-more" title="Más opciones">
+                                        <i class="fas fa-ellipsis-vertical"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-</div>
 {% endblock %}

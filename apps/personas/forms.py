@@ -85,3 +85,19 @@ class UserEditForm(forms.ModelForm):
             'username': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
         }
+
+
+class PersonaAdminForm(forms.ModelForm):
+    """
+    Formulario exclusivo para administradores.
+    Permite cambiar el ROL y el ESTADO de un usuario.
+    """
+
+    class Meta:
+        model = Persona
+        fields = ['rol', 'estado']
+        widgets = {
+            'rol': forms.Select(attrs={'class': 'form-control'}),
+            # Checkbox estilizado (dependiendo de tu CSS, o simple checkbox)
+            'estado': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }

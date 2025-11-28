@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Gestión de Usuarios{% endblock %}
+
+{% block content %}
+    <div class="content-container">
+
+        <!-- Mensajes de éxito/error -->
+        {% if messages %}
+            <div style="margin-bottom: 1rem;">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}" style="padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem;
+                        {% if message.tags == 'success' %}
+                            background: #D1FAE5; border-left: 4px solid #10B981; color: #065F46;
+                        {% elif message.tags == 'error' %}
+                            background: #FEE2E2; border-left: 4px solid #EF4444; color: #991B1B;
+                        {% endif %}
+                    ">
+                        <i class="fa-solid {% if message.tags == 'success' %}fa-circle-check{% else %}fa-circle-exclamation{% endif %}" style="margin-right: 8px;"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- HEADER MODERNO CON GRADIENTE -->
+        <div class="modern-header-gradient">
+            <div class="header-content-wrapper">
+                <div class="header-icon-circle">
+                    <i class="fa-solid fa-users-gear"></i>
+                </div>
+                <div>
+                    <h1 class="modern-header-title">Gestión de Usuarios</h1>
+                    <p class="modern-header-subtitle">Administra clientes, empresarios y permisos del sistema</p>
+                </div>
+            </div>
+            <button onclick="abrirModalNuevo()" class="btn-header-action">
+                <i class="fa-solid fa-user-plus"></i> Nuevo Usuario
+            </button>
+        </div>
+
+        <!-- KPIs MODERNOS CON ICONOS -->
+        <div class="stats-grid-modern" style="margin-top: 2rem;">
+            <div class="stat-card-modern stat-blue">
+                <div class="stat-icon-modern">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+                <div class="stat-content-modern">
+                    <div class="stat-label-modern">Total Usuarios</div>
+                    <div class="stat-value-modern">{{ usuarios.count }}</div>
+                </div>
+            </div>
+
+            <div class="stat-card-modern stat-green">
+                <div class="stat-icon-modern">
+                    <i class="fa-solid fa-user-check"></i>
+                </div>
+                <div class="stat-content-modern">
+                    <div class="stat-label-modern">Usuarios Activos</div>
+                    <div class="stat-value-modern">{{ activos_count }}</div>
+                </div>
+            </div>
+
+            <div class="stat-card-modern stat-orange">
+                <div class="stat-icon-modern">
+                    <i class="fa-solid fa-briefcase"></i>
+                </div>
+                <div class="stat-content-modern">
+                    <div class="stat-label-modern">Empresarios</div>
+                    <div class="stat-value-modern">{{ empresarios_count }}</div>
+                </div>
+            </div>
+
+            <div class="stat-card-modern stat-purple">
+                <div class="stat-icon-modern">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <div class="stat-content-modern">
+                    <div class="stat-label-modern">Administradores</div>
+                    <div class="stat-value-modern">{{ admins_count }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TARJETA DE TABLA MODERNA -->
+        <div class="modern-card-table" style="margin-top: 2rem;">
+            <!-- Barra de búsqueda mejorada -->
+            <div class="table-header-actions">
+                <div class="search-box-modern">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="searchInput" class="search-input-modern" placeholder="Buscar por nombre, email o teléfono...">
+                </div>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="all">
+                        <i class="fa-solid fa-users"></i> Todos
+                    </button>
+                    <button class="filter-btn" data-filter="CLIENTE">
+                        <i class="fa-solid fa-user"></i> Clientes
+                    </button>
+                    <button class="filter-btn" data-filter="EMPRESARIO">
+                        <i class="fa-solid fa-briefcase"></i> Empresarios
+                    </button>
+                    <button class="filter-btn" data-filter="ADMIN">
+                        <i class="fa-solid fa-user-shield"></i> Admins
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabla responsive moderna -->
+            <div class="table-responsive-modern">
+                <table class="modern-table">
+                    <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Contacto</th>
+                        <th>Registro</th>
+                        <th>Rol</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                    {% for u in usuarios %}
+                        <tr data-user-role="{{ u.persona.rol }}" data-user-status="{{ u.persona.estado|yesno:'activo,inactivo' }}">
+                            <td>
+                                <div class="user-cell-modern">
+                                    {% if u.persona.foto %}
+                                        <img src="{{ u.persona.foto.url }}" alt="{{ u.username }}" class="user-avatar-modern">
+                                    {% else %}
+                                        <div class="user-avatar-modern avatar-placeholder">
+                                            {{ u.username|slice:":1"|upper }}
+                                        </div>
+                                    {% endif %}
+                                    <div class="user-info-modern">
+                                        <div class="user-name-modern">{{ u.username }}</div>
+                                        <div class="user-email-modern">{{ u.email }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="contact-info-modern">
+                                    <i class="fa-solid fa-phone"></i>
+                                    {{ u.persona.celular|default:"Sin teléfono" }}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="date-info-modern">
+                                    <i class="fa-regular fa-calendar"></i>
+                                    {{ u.date_joined|date:"d M Y" }}
+                                </div>
+                            </td>
+                            <td>
+                                {% if u.persona.rol == 'ADMIN' %}
+                                    <span class="role-badge role-admin">
+                                        <i class="fa-solid fa-user-shield"></i> Administrador
+                                    </span>
+                                {% elif u.persona.rol == 'EMPRESARIO' %}
+                                    <span class="role-badge role-empresario">
+                                        <i class="fa-solid fa-briefcase"></i> Empresario
+                                    </span>
+                                {% else %}
+                                    <span class="role-badge role-cliente">
+                                        <i class="fa-solid fa-user"></i> Cliente
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                {% if u.persona.estado %}
+                                    <span class="status-badge status-active">
+                                        <i class="fa-solid fa-circle-check"></i> Activo
+                                    </span>
+                                {% else %}
+                                    <span class="status-badge status-inactive">
+                                        <i class="fa-solid fa-circle-xmark"></i> Inactivo
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <div class="action-buttons-modern">
+                                    <button class="btn-action-modern btn-view-modern" 
+                                            onclick="verPerfil({{ u.id }})" 
+                                            title="Ver Perfil">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                    <button class="btn-action-modern btn-edit-modern" 
+                                            onclick="event.preventDefault(); editarUsuario('{{ u.id }}', '{{ u.username }}', '{{ u.persona.rol }}', '{{ u.persona.estado|yesno:'true,false' }}')" 
+                                            title="Editar">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                    {% if u.persona.estado %}
+                                        <button class="btn-action-modern btn-disable-modern" 
+                                                onclick="darDeBaja({{ u.id }}, '{{ u.username }}')" 
+                                                title="Dar de Baja">
+                                            <i class="fa-solid fa-user-slash"></i>
+                                        </button>
+                                    {% else %}
+                                        <button class="btn-action-modern btn-enable-modern" 
+                                                onclick="activarUsuario({{ u.id }}, '{{ u.username }}')" 
+                                                title="Activar">
+                                            <i class="fa-solid fa-user-check"></i>
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center" style="padding: 3rem;">
+                                <div class="empty-state-modern">
+                                    <i class="fa-solid fa-users-slash" style="font-size: 3rem; color: #D1D5DB; margin-bottom: 1rem;"></i>
+                                    <p style="color: #6B7280; font-size: 1.1rem;">No hay usuarios registrados</p>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modales -->
+    {% include "personas/includes/modal_editar_usuario.html" %}
+    {% include "personas/includes/modal_ver_perfil.html" %}
+    {% include "personas/includes/modal_nuevo_usuario.html" %}
+
+    <!-- JavaScript específico para admin usuarios -->
+    <script src="{% static 'js/admin_usuarios.js' %}"></script>
+
+{% endblock %}

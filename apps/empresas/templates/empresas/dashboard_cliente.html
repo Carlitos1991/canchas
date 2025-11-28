@@ -4,56 +4,107 @@
 {% block title %}Buscar Canchas{% endblock %}
 
 {% block content %}
-<div class="content-container">
-    <div class="header-section">
-        <h1 class="page-title">Encuentra tu Cancha</h1>
-        <p class="text-muted">Explora y reserva la cancha perfecta.</p>
-    </div>
+    <div class="content-container">
 
-    <div class="client-dashboard-grid">
-        {% for cancha in canchas %}
-        <div class="cancha-card-client">
-            <div class="cancha-image">
-                {% if cancha.foto_principal %}
-                    <img src="{{ cancha.foto_principal.imagen.url }}" alt="{{ cancha.nombre }}">
-                {% else %}
-                    <div class="no-photo"></div>
-                {% endif %}
-                <span class="price-tag">${{ cancha.precio_hora|floatformat:0 }}/hr</span>
+        <!-- Header con Búsqueda -->
+        <div style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); padding: 3rem 2rem; border-radius: 20px; color: white; margin-bottom: 2.5rem; text-align: center;">
+            <h1 style="font-size: 2.5rem; margin: 0 0 10px 0;">¡Hola, {{ user.first_name|default:user.username }}!</h1>
+            <p style="font-size: 1.1rem; opacity: 0.9; margin-bottom: 2rem;">¿Listo para jugar? Encuentra la mejor
+                cancha cerca de ti.</p>
+
+            <div style="max-width: 600px; margin: 0 auto; position: relative;">
+                <input type="text" placeholder="Buscar por nombre, zona o deporte..."
+                       style="width: 100%; padding: 1.2rem 3rem 1.2rem 1.5rem; border-radius: 50px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.2); font-size: 1rem;">
+                <button style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: var(--secondary-color); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer;">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
             </div>
-            <div class="cancha-content">
-                <h3>{{ cancha.nombre }}</h3>
-                <small class="text-muted">{{ cancha.empresa.nombre }}</small>
-            </div>
-            <div class="disponibilidad-section">
-                <h4>Horarios Disponibles</h4>
-                <div class="disponibilidad-list-client">
-                    {% for d in cancha.disponibilidades.all %}
-                        {% if d.estado == 'LIBRE' %}
-                        <div class="disponibilidad-item-client">
-                            <span>{{ d.fecha|date:"D, d M" }} - {{ d.hora_inicio|time:"H:i" }}</span>
-                            <!-- Pasamos la URL de la API en data-url -->
-                            <button class="btn-reservar"
-                                    data-url="{% url 'api_reservar' %}"
-                                    onclick="reservarHorario('{{ d.id }}', this)">
-                                Reservar
-                            </button>
-                        </div>
+        </div>
+
+        <!-- Filtros Rápidos (Opcional) -->
+        <div style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 1rem; margin-bottom: 1rem;">
+            <button class="btn-outline"
+                    style="border-radius: 20px; background: white; border-color: transparent; box-shadow: var(--shadow-sm);">
+                ⚽ Fútbol
+            </button>
+            <button class="btn-outline"
+                    style="border-radius: 20px; background: white; border-color: transparent; box-shadow: var(--shadow-sm);">
+                🏀 Baloncesto
+            </button>
+            <button class="btn-outline"
+                    style="border-radius: 20px; background: white; border-color: transparent; box-shadow: var(--shadow-sm);">
+                🎾 Tenis
+            </button>
+            <button class="btn-outline"
+                    style="border-radius: 20px; background: white; border-color: transparent; box-shadow: var(--shadow-sm);">
+                🏐 Voley
+            </button>
+        </div>
+
+        <div class="dashboard-header">
+            <h2 class="dashboard-title" style="font-size: 1.5rem;">Canchas Destacadas</h2>
+        </div>
+
+        <div class="client-dashboard-grid">
+            {% for cancha in canchas %}
+                <div class="cancha-card-client"
+                     style="border: none; box-shadow: var(--shadow-md); border-radius: 16px; overflow: hidden; transition: transform 0.2s;">
+                    <div class="cancha-image" style="height: 200px;">
+                        {% if cancha.foto_principal %}
+                            <img src="{{ cancha.foto_principal.imagen.url }}" alt="{{ cancha.nombre }}"
+                                 style="width: 100%; height: 100%; object-fit: cover;">
+                        {% else %}
+                            <div class="no-photo"
+                                 style="background: #ddd; height: 100%; display: flex; align-items: center; justify-content: center; color: #999;">
+                                <i class="fa-regular fa-image" style="font-size: 3rem;"></i>
+                            </div>
                         {% endif %}
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-        {% empty %}
-        <div class="alert-box">
-            <p>No hay canchas disponibles.</p>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-{% endblock %}
+                        <span class="price-tag"
+                              style="position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.8); color: white; padding: 5px 12px; border-radius: 20px; font-weight: bold;">
+                    ${{ cancha.precio_hora|floatformat:0 }}/hr
+                </span>
+                    </div>
 
-{% block scripts %}
-    {{ block.super }}
-    <script src="{% static 'js/client_dashboard.js' %}"></script>
+                    <div class="cancha-content" style="padding: 1.5rem;">
+                        <h3 style="margin: 0 0 5px 0; font-size: 1.25rem;">{{ cancha.nombre }}</h3>
+                        <p class="text-muted" style="margin: 0 0 15px 0; font-size: 0.9rem;">
+                            <i class="fa-solid fa-location-dot"
+                               style="color: var(--primary-color);"></i> {{ cancha.empresa.nombre }}
+                        </p>
+
+                        <div class="disponibilidad-section">
+                            <h4 style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; color: #888; margin-bottom: 10px;">
+                                Horarios Disponibles</h4>
+                            <div class="disponibilidad-list-client"
+                                 style="display: flex; flex-direction: column; gap: 8px;">
+                                {% for d in cancha.disponibilidades.all|slice:":3" %}
+                                    {% if d.estado == 'LIBRE' %}
+                                        <div class="disponibilidad-item-client"
+                                             style="display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 8px 12px; border-radius: 8px;">
+                                            <span style="font-size: 0.9rem; font-weight: 500;">{{ d.fecha|date:"D d" }} - {{ d.hora_inicio|time:"H:i" }}</span>
+                                            <button class="btn-reservar"
+                                                    style="background: var(--primary-color); color: white; border: none; padding: 5px 12px; border-radius: 6px; font-size: 0.8rem; cursor: pointer;"
+                                                    data-url="{% url 'api_reservar' %}"
+                                                    onclick="reservarHorario('{{ d.id }}', this)">
+                                                Reservar
+                                            </button>
+                                        </div>
+                                    {% endif %}
+                                {% empty %}
+                                    <p style="font-size: 0.9rem; color: #999; font-style: italic;">No hay turnos
+                                        disponibles.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="alert-box" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+                    <i class="fa-solid fa-magnifying-glass"
+                       style="font-size: 3rem; color: #ddd; margin-bottom: 1rem;"></i>
+                    <p>No encontramos canchas disponibles por el momento.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
 {% endblock %}

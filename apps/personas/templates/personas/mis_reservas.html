@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Mis Reservas{% endblock %}
 
@@ -6,11 +7,96 @@
     <div class="content-container">
         <div class="header-section">
             <h1 class="page-title">Mis Reservas</h1>
-            <p class="text-muted">Historial de tus partidos programados.</p>
+            <p class="text-muted">Gestiona tus próximos partidos.</p>
         </div>
 
-        <div class="alert-box">
-            <p>Próximamente verás tus reservas aquí.</p>
-        </div>
+        {% if reservas %}
+            <div class="reservas-grid">
+                {% for reserva in reservas %}
+                    <div class="cancha-card reserva-card" id="reserva-{{ reserva.id }}">
+                        <!-- Cabecera visual -->
+                        <div class="reserva-header">
+                            <div class="reserva-date">
+                                <span class="day">{{ reserva.fecha|date:"d" }}</span>
+                                <span class="month">{{ reserva.fecha|date:"M" }}</span>
+                            </div>
+                            <div class="reserva-info">
+                                <h3>{{ reserva.cancha.nombre }}</h3>
+                                <p class="empresa-name">{{ reserva.cancha.empresa.nombre }}</p>
+                                <div class="reserva-time">
+                                    <i class="fa-regular fa-clock"></i>
+                                    {{ reserva.hora_inicio|time:"H:i" }} - {{ reserva.hora_fin|time:"H:i" }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer con acciones -->
+                        <div class="reserva-footer">
+                            <span class="status-badge status-confirmed">Confirmado</span>
+                            <button class="btn-cancel-link"
+                                    onclick="cancelarReserva('{{ reserva.id }}', '{% url 'api_cancelar_reserva' %}')">
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert-box">
+                <div style="text-align: center; padding: 2rem;">
+                    <i class="fa-solid fa-calendar-xmark"
+                       style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+                    <h3>No tienes reservas activas</h3>
+                    <p>¡Busca una cancha y agenda tu primer partido!</p>
+                    <a href="{% url 'home' %}" class="btn-primary"
+                       style="display: inline-block; width: auto; margin-top: 1rem;">
+                        Buscar Canchas
+                    </a>
+                </div>
+            </div>
+        {% endif %}
     </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script>
+        async function cancelarReserva(id, url) {
+            if (!confirm('¿Estás seguro de que deseas cancelar esta reserva? El horario quedará libre para otros.')) return;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({reserva_id: id})
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Eliminar la tarjeta del DOM con una animación suave
+                    const card = document.getElementById(`reserva-${id}`);
+                    if (card) {
+                        card.style.opacity = '0';
+                        card.style.transform = 'scale(0.9)';
+                        setTimeout(() => {
+                            card.remove();
+                            // Si no quedan reservas, recargar para mostrar el mensaje de vacío
+                            if (document.querySelectorAll('.reserva-card').length === 0) {
+                                location.reload();
+                            }
+                        }, 300);
+                    }
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Error de conexión');
+            }
+        }
+    </script>
 {% endblock %}

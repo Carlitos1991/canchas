@@ -1,19 +1,35 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import login
-from django.contrib.auth.decorators import login_required
-from .forms import UserForm, UserEditForm, UserLoginForm, PersonaForm
-from .models import Persona
-from apps.empresas.models import Cancha
+from django.shortcuts import render, redirect, get_object_or_404
+import json
 
+from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.db import transaction
+from django.http import JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
+
+from apps.empresas.models import Cancha, Disponibilidad  # Importamos Disponibilidad
+from .forms import UserForm, UserEditForm, UserLoginForm, PersonaForm, PersonaAdminForm
+from .models import Persona
+from django.contrib.auth.models import User
 
 # --- VISTA HOME (DISPATCHER) ---
 @login_required
 def home_view(request):
     user = request.user
-    # 1. Si es Empresario/Admin -> Dashboard Gerente
+    
+    # Verificar si el admin está en modo "vista de cliente"
+    vista_cliente_activa = request.session.get('vista_cliente', False)
+    
+    # 1. Si es Admin en modo vista de cliente -> Mostrar Dashboard Cliente
+    if user.is_superuser and vista_cliente_activa:
+        canchas = Cancha.objects.filter(estado=True).select_related('empresa').prefetch_related('disponibilidades')
+        return render(request, 'empresas/dashboard_cliente.html', {'canchas': canchas})
+    
+    # 2. Si es Empresario/Admin (normal) -> Dashboard Gerente
     if user.is_superuser or user.groups.filter(name='Empresarios').exists():
         return render(request, 'empresas/dashboard_manager.html')
-    # 2. Si es Cliente -> Dashboard Cliente
+    
+    # 3. Si es Cliente -> Dashboard Cliente
     canchas = Cancha.objects.filter(estado=True).select_related('empresa').prefetch_related('disponibilidades')
     return render(request, 'empresas/dashboard_cliente.html', {'canchas': canchas})
 
@@ -100,10 +116,266 @@ def profile_edit_view(request):
         'persona_form': persona_form
     })
 
+
 @login_required
 def mis_reservas_view(request):
     """
     Vista para ver el historial de reservas del cliente.
     """
-    # Por ahora renderizamos un template vacío
-    return render(request, 'personas/mis_reservas.html')
+    # Usamos 'reservas' porque en el modelo Disponibilidad pusimos related_name='reservas'
+    reservas = request.user.reservas.select_related('cancha', 'cancha__empresa').order_by('fecha', 'hora_inicio')
+
+    return render(request, 'personas/mis_reservas.html', {
+        'reservas': reservas
+    })
+
+
+@login_required
+def cancelar_reserva(request):
+    """
+    API AJAX para cancelar una reserva propia.
+    """
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            reserva_id = data.get('reserva_id')
+
+            # Buscamos la reserva asegurándonos que pertenezca al usuario actual
+            reserva = get_object_or_404(Disponibilidad, id=reserva_id, cliente=request.user)
+
+            with transaction.atomic():
+                reserva.cliente = None
+                reserva.estado = Disponibilidad.Estado.LIBRE
+                reserva.save()
+
+            return JsonResponse({'success': True, 'message': 'Reserva cancelada exitosamente.'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+
+    return JsonResponse({'success': False, 'message': 'Método no permitido'})
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)  # Solo superusuarios
+def admin_usuarios_view(request):
+    """
+    Renderiza la tabla de todos los usuarios registrados.
+    También procesa actualizaciones de usuarios desde el modal.
+    """
+    # Procesar formulario POST del modal
+    if request.method == 'POST':
+        user_id = request.POST.get('user_id')
+        accion = request.POST.get('accion', 'editar')
+        
+        try:
+            # Buscamos la Persona asociada al ID de usuario
+            persona = get_object_or_404(Persona, user_id=user_id)
+            
+            if accion == 'cambiar_estado':
+                # Solo cambiar el estado
+                estado = request.POST.get('estado') == 'true'
+                persona.estado = estado
+                persona.save()
+                
+                from django.contrib import messages
+                estado_texto = 'activado' if estado else 'dado de baja'
+                messages.success(request, f'Usuario {persona.user.username} {estado_texto} correctamente.')
+            else:
+                # Edición completa: Actualizamos rol y estado
+                rol = request.POST.get('rol')
+                estado = request.POST.get('estado') == 'true'
+                
+                persona.rol = rol
+                persona.estado = estado
+                persona.save()
+                
+                # Mensaje de éxito
+                from django.contrib import messages
+                messages.success(request, f'Usuario {persona.user.username} actualizado correctamente.')
+            
+        except Exception as e:
+            from django.contrib import messages
+            messages.error(request, f'Error al actualizar usuario: {str(e)}')
+        
+        # Redireccionar para evitar reenvío del formulario
+        return redirect('admin_usuarios')
+    
+    # GET: Traemos Usuario y su perfil Persona para no hacer n+1 queries
+    usuarios = User.objects.select_related('persona').all().order_by('-date_joined')
+    
+    # Calcular estadísticas
+    activos_count = usuarios.filter(persona__estado=True).count()
+    empresarios_count = usuarios.filter(persona__rol='EMPRESARIO').count()
+    admins_count = usuarios.filter(persona__rol='ADMIN').count()
+
+    context = {
+        'usuarios': usuarios,
+        'activos_count': activos_count,
+        'empresarios_count': empresarios_count,
+        'admins_count': admins_count,
+        'form_admin': PersonaAdminForm()  # Formulario vacío para el Modal
+    }
+    return render(request, 'personas/admin_usuarios.html', context)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def update_user_role(request):
+    """
+    API AJAX para cambiar el rol o estado de un usuario.
+    """
+    if request.method == 'POST':
+        user_id = request.POST.get('user_id')
+        try:
+            # Buscamos la Persona asociada al ID de usuario
+            persona = get_object_or_404(Persona, user_id=user_id)
+
+            form = PersonaAdminForm(request.POST, instance=persona)
+            if form.is_valid():
+                form.save()
+                # NOTA: Al hacer .save(), se dispara la SIGNAL que creamos antes
+                # y actualiza los grupos automáticamente.
+                return JsonResponse({'success': True, 'message': 'Usuario actualizado correctamente.'})
+            else:
+                return JsonResponse({'success': False, 'errors': form.errors})
+
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+
+    return JsonResponse({'success': False, 'message': 'Método no permitido'})
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def get_user_profile_api(request, user_id):
+    """
+    API para obtener el perfil completo de un usuario.
+    """
+    try:
+        user = get_object_or_404(User, id=user_id)
+        persona = user.persona
+        
+        data = {
+            'success': True,
+            'user': {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'date_joined': user.date_joined.strftime('%d %b, %Y'),
+            },
+            'persona': {
+                'nombre': persona.nombre or '',
+                'apellido': persona.apellido or '',
+                'celular': persona.celular or '',
+                'fecha_nacimiento': persona.fecha_nacimiento.strftime('%d %b, %Y') if persona.fecha_nacimiento else '',
+                'genero': persona.get_genero_display() if persona.genero else '',
+                'direccion': persona.direccion or '',
+                'rol': persona.rol,
+                'estado': persona.estado,
+                'foto': persona.foto.url if persona.foto else '',
+                'actualizado_en': persona.actualizado_en.strftime('%d %b, %Y %H:%M'),
+            }
+        }
+        
+        return JsonResponse(data)
+    
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def crear_usuario_view(request):
+    """
+    Vista para crear un nuevo usuario con su perfil de persona.
+    Solo accesible por administradores.
+    """
+    if request.method == 'POST':
+        try:
+            # Obtener datos del formulario
+            username = request.POST.get('username', '').strip()
+            email = request.POST.get('email', '').strip()
+            password = request.POST.get('password', '').strip()
+            nombre = request.POST.get('nombre', '').strip()
+            apellido = request.POST.get('apellido', '').strip()
+            celular = request.POST.get('celular', '').strip()
+            rol = request.POST.get('rol', 'CLIENTE')
+            estado = request.POST.get('estado') == 'on'
+            
+            # Validaciones básicas
+            if not username or not email or not password:
+                from django.contrib import messages
+                messages.error(request, 'Usuario, email y contraseña son obligatorios.')
+                return redirect('admin_usuarios')
+            
+            if len(password) < 8:
+                from django.contrib import messages
+                messages.error(request, 'La contraseña debe tener al menos 8 caracteres.')
+                return redirect('admin_usuarios')
+            
+            # Verificar si el username o email ya existen
+            if User.objects.filter(username=username).exists():
+                from django.contrib import messages
+                messages.error(request, f'El nombre de usuario "{username}" ya está en uso.')
+                return redirect('admin_usuarios')
+            
+            if User.objects.filter(email=email).exists():
+                from django.contrib import messages
+                messages.error(request, f'El email "{email}" ya está registrado.')
+                return redirect('admin_usuarios')
+            
+            # Crear usuario y persona en una transacción atómica
+            with transaction.atomic():
+                # Crear el usuario
+                user = User.objects.create_user(
+                    username=username,
+                    email=email,
+                    password=password
+                )
+                
+                # Crear la persona asociada
+                persona = Persona.objects.create(
+                    user=user,
+                    nombre=nombre,
+                    apellido=apellido,
+                    celular=celular,
+                    rol=rol,
+                    estado=estado
+                )
+                
+                # La señal (signal) se encargará de asignar el grupo automáticamente
+                # basándose en el rol de la persona
+            
+            from django.contrib import messages
+            messages.success(request, f'Usuario "{username}" creado exitosamente con rol {persona.get_rol_display()}.')
+            return redirect('admin_usuarios')
+            
+        except Exception as e:
+            from django.contrib import messages
+            messages.error(request, f'Error al crear usuario: {str(e)}')
+            return redirect('admin_usuarios')
+    
+    # Si es GET, redirigir a admin usuarios
+    return redirect('admin_usuarios')
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def toggle_vista_cliente(request):
+    """
+    Permite a los administradores alternar entre su vista normal
+    y la vista de cliente del sistema.
+    """
+    # Obtener estado actual
+    vista_cliente_activa = request.session.get('vista_cliente', False)
+    
+    # Alternar el estado
+    request.session['vista_cliente'] = not vista_cliente_activa
+    
+    from django.contrib import messages
+    if not vista_cliente_activa:
+        messages.info(request, '👁️ Ahora estás viendo el sistema como un Cliente.')
+    else:
+        messages.info(request, '🛡️ Has vuelto a la vista de Administrador.')
+    
+    # Redirigir al home para que cargue la vista correspondiente
+    return redirect('home')

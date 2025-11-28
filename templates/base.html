@@ -14,8 +14,20 @@
     <!-- Font Awesome (Local) -->
     <link rel="stylesheet" href="{% static 'css/all.min.css' %}">
 
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <!-- Hoja de Estilos Principal -->
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=20251128v2">
+    
+    <!-- Hoja de Estilos de Animaciones del Sidebar -->
+    <link rel="stylesheet" href="{% static 'css/sidebar-animations.css' %}">
+    
+    <!-- Hoja de Estilos de Dashboard Moderno -->
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    
+    <!-- Hoja de Estilos de Autenticación -->
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}?v=20251128v7">
 </head>
 
 <!--
@@ -29,15 +41,12 @@
     <!--     NUEVO SIDEBAR                 -->
     <!-- =================================== -->
     <aside class="sidebar">
-        <!-- Encabezado del Sidebar (Logo y Botón de Colapsar) -->
+        <!-- Encabezado del Sidebar (Logo) -->
         <div class="sidebar-header">
-            <a href="{% url 'home' %}" class="sidebar-brand">
+            <div class="sidebar-brand">
                 <img src="{% static 'media/icono.png' %}" alt="Logo" class="sidebar-logo">
                 <span class="sidebar-brand-text">Canchas</span>
-            </a>
-            <button id="sidebar-toggle" class="sidebar-toggle-btn" title="Colapsar sidebar">
-                <i class="fa-solid fa-chevron-left"></i>
-            </button>
+            </div>
         </div>
 
         <!-- Navegación Principal -->
@@ -45,47 +54,52 @@
             {% for item in sidebar_menu %}
                 <!-- La lógica de 'active' compara la URL actual o el nombre de la vista -->
                 <a href="{{ item.url }}"
-                   class="nav-link {% if request.resolver_match.url_name == item.active_check %}active{% endif %}">
-                    <i class="nav-icon fa-solid {{ item.icon }}"></i>
+                   class="nav-link {% if request.resolver_match.url_name == item.active_check %}active{% endif %} {{ item.class|default:'' }}"
+                   title="{{ item.label }}">
+                    <div class="nav-icon">
+                        <i class="fa-solid {{ item.icon }}"></i>
+                    </div>
                     <span class="nav-text">{{ item.label }}</span>
                 </a>
             {% endfor %}
 
-            <!-- Ítems fijos de configuración siempre visibles -->
-            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 0.5rem 1rem;">
+            <!-- Separador visual -->
+            <hr>
 
+            <!-- Perfil del usuario (siempre visible) -->
             <a href="{% url 'profile' %}"
-               class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
-                <i class="nav-icon fa-solid fa-user-gear"></i>
+               class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}"
+               title="Mi Perfil">
+                <div class="nav-icon">
+                    <i class="fa-solid fa-user-gear"></i>
+                </div>
                 <span class="nav-text">Mi Perfil</span>
             </a>
         </nav>
 
-        <!-- Pie de Sidebar (Modo Oscuro y Perfil) -->
+        <!-- Pie de Sidebar (Perfil del Usuario) -->
         <div class="sidebar-footer">
-            <!-- Interruptor de Modo Oscuro -->
-            <div class="theme-switch-wrapper">
-                <i class="nav-icon fa-solid fa-moon"></i>
-                <span class="nav-text">Modo Oscuro</span>
-                <label class="theme-switch" for="theme-toggle-checkbox">
-                    <input type="checkbox" id="theme-toggle-checkbox">
-                    <span class="slider round"></span>
-                </label>
-            </div>
-
             <!-- Perfil del Usuario -->
             <div class="sidebar-profile">
-                <!-- Usamos un placeholder genérico para el avatar -->
-                <img src="https://placehold.co/40x40/55B8BA/FFFFFF?text={{ user.username.0|upper }}"
+                <!-- Avatar con inicial del usuario -->
+                <img src="https://placehold.co/42x42/10B981/FFFFFF?text={{ user.username.0|upper }}"
                      alt="Avatar"
                      class="profile-avatar"
-                     onerror="this.src='https://placehold.co/40x40/55B8BA/FFFFFF?text=?'">
+                     onerror="this.src='https://placehold.co/42x42/10B981/FFFFFF?text=?'">
 
                 <div class="profile-info">
-                        <span class="profile-name">
-                            {{ user.persona.nombre|default:user.username }}
-                        </span>
-                    <span class="profile-role">Usuario</span>
+                    <span class="profile-name">
+                        {{ user.persona.nombre|default:user.username }}
+                    </span>
+                    <span class="profile-role">
+                        {% if user.persona.rol %}
+                            {{ user.persona.get_rol_display }}
+                        {% elif user.is_superuser %}
+                            Administrador
+                        {% else %}
+                            Usuario
+                        {% endif %}
+                    </span>
                 </div>
 
                 <!-- Botón de Logout -->
@@ -107,6 +121,19 @@
 <!--
 -->
 <main class="{% if user.is_authenticated %}main-content{% else %}main-container{% endif %}">
+    <!-- Banner informativo cuando el admin está en vista de cliente -->
+    {% if vista_cliente_activa %}
+    <div class="admin-vista-cliente-banner">
+        <div class="banner-content">
+            <i class="fa-solid fa-eye"></i>
+            <span>Estás viendo el sistema como <strong>Cliente</strong></span>
+            <a href="{% url 'toggle_vista_cliente' %}" class="btn-volver-admin">
+                <i class="fa-solid fa-user-shield"></i> Volver a Admin
+            </a>
+        </div>
+    </div>
+    {% endif %}
+    
     {% block content %}{% endblock %}
 </main>
 

@@ -5,114 +5,215 @@
 
 {% block content %}
     <div class="content-container">
-        <!-- Encabezado -->
-        <div class="header-section">
-            <div>
-                <h1 class="page-title">Gestión de Negocio</h1>
-                <p class="text-muted">Administra tus complejos y canchas.</p>
+        
+        <!-- HEADER MODERNO -->
+        <div class="dashboard-header-modern">
+            <div class="dashboard-welcome">
+                <h1 class="dashboard-title-modern">
+                    <i class="fas fa-building"></i>
+                    Gestión de Negocio
+                </h1>
+                <p class="dashboard-subtitle-modern">
+                    <i class="far fa-futbol"></i>
+                    Administra tus complejos deportivos y canchas
+                </p>
             </div>
-            <!-- Botón para abrir modal de Nueva Empresa -->
-            <button class="btn-primary" onclick="openModal('modalEmpresa')">
-                <i class="fa-solid fa-plus"></i> Nueva Empresa
-            </button>
+            <div class="dashboard-actions">
+                <button class="btn-primary-modern" onclick="openModal('modalEmpresa')">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Nueva Empresa</span>
+                </button>
+            </div>
         </div>
 
-        <!-- Selector de Empresa -->
+        <!-- Selector de Empresa Moderno -->
         {% if empresas %}
-            <div class="empresa-selector-container">
-                <label for="empresaSelector">Empresa Actual:</label>
-                <select id="empresaSelector" class="form-control" onchange="location = this.value;"
-                        style="margin-top: 10px;">
-                    {% for empresa in empresas %}
-                        <option value="?empresa_id={{ empresa.id }}"
-                                {% if empresa.id == active_empresa.id %}selected{% endif %}>
-                            {{ empresa.nombre }}
-                        </option>
-                    {% endfor %}
-                </select>
+            <div class="card-modern" style="margin-top: 2rem; padding: 1.5rem;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div style="flex: 1;">
+                        <label style="display: block; font-weight: 600; color: var(--secondary-color); margin-bottom: 0.5rem;">
+                            <i class="fas fa-building"></i> Empresa Actual
+                        </label>
+                        <select id="empresaSelector" class="form-control-sport" onchange="location = this.value;">
+                            {% for empresa in empresas %}
+                                <option value="?empresa_id={{ empresa.id }}"
+                                        {% if empresa.id == active_empresa.id %}selected{% endif %}>
+                                    {{ empresa.nombre }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div style="padding-top: 1.5rem;">
+                        <button class="btn-outline-modern" onclick="editarEmpresa(
+                            '{{ active_empresa.id }}',
+                            '{{ active_empresa.nombre|escapejs }}',
+                            '{{ active_empresa.gerente|escapejs }}',
+                            '{{ active_empresa.telefono|escapejs }}',
+                            '{{ active_empresa.direccion|escapejs }}',
+                            '{{ active_empresa.ubicacion_url|escapejs }}'
+                        )">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                    </div>
+                </div>
             </div>
         {% endif %}
 
-        <!-- Listado de Canchas -->
+        <!-- Listado de Canchas Moderno -->
         {% if active_empresa %}
-            <div class="header-section" style="margin-top: 2rem; margin-bottom: 1rem;">
-                <h3>Canchas de {{ active_empresa.nombre }}</h3>
-                <a href="{% url 'nueva_cancha' %}?empresa_id={{ active_empresa.id }}" class="btn-primary-outline">
-                    <i class="fa-solid fa-plus"></i> Nueva Cancha
-                </a>
-            </div>
-
-            <div class="canchas-grid">
-                {% for cancha in canchas %}
-                    <div class="cancha-card">
-                        <div class="cancha-image">
-                            {% if cancha.foto_principal %}
-                                <img src="{{ cancha.foto_principal.imagen.url }}" alt="{{ cancha.nombre }}">
-                            {% else %}
-                                <div class="no-photo"></div> <!-- Icono por defecto -->
-                            {% endif %}
-                            <span class="price-tag">${{ cancha.precio_hora|floatformat:0 }}/hr</span>
-                        </div>
-                        <div class="cancha-content">
-                            <h3>{{ cancha.nombre }}</h3>
-                            <p class="text-muted"><small>Capacidad: {{ cancha.capacidad }} personas</small></p>
-
-                            <div class="cancha-actions">
-                                <!-- Botones que llaman al JS -->
-                                <button class="btn-outline"
-                                        onclick="editarCancha('{{ cancha.id }}', '{{ cancha.nombre|escapejs }}', '{{ cancha.capacidad }}', '{{ cancha.precio_hora|escapejs }}')">
-                                    <i class="fa-solid fa-pen"></i> Editar
-                                </button>
-                                <button class="btn-primary" onclick="openDisponibilidadModal('{{ cancha.id }}')">
-                                    <i class="fa-regular fa-clock"></i> Horarios
-                                </button>
-                            </div>
-                        </div>
+            <div class="card-modern" style="margin-top: 2rem;">
+                <div class="card-header-modern">
+                    <div class="card-title-group">
+                        <h3 class="card-title-modern">
+                            <i class="fas fa-futbol"></i>
+                            Canchas de {{ active_empresa.nombre }}
+                        </h3>
+                        <p class="card-subtitle-modern">Administra y configura tus espacios deportivos</p>
                     </div>
-                {% empty %}
-                    <div class="alert-box">No hay canchas registradas en esta empresa.</div>
-                {% endfor %}
+                    <a href="{% url 'nueva_cancha' %}?empresa_id={{ active_empresa.id }}" class="btn-primary-modern">
+                        <i class="fa-solid fa-plus"></i> Nueva Cancha
+                    </a>
+                </div>
+
+                <div style="padding: 1.5rem;">
+                    <div class="stats-grid-modern" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); margin-bottom: 2rem;">
+                        {% for cancha in canchas %}
+                            <div class="cancha-card-modern">
+                                <div class="cancha-image-modern">
+                                    {% if cancha.foto_principal %}
+                                        <img src="{{ cancha.foto_principal.imagen.url }}" alt="{{ cancha.nombre }}">
+                                    {% else %}
+                                        <div class="no-photo-modern">
+                                            <i class="fas fa-futbol"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div class="price-badge-modern">
+                                        <i class="fas fa-dollar-sign"></i>
+                                        {{ cancha.precio_hora|floatformat:0 }}/hr
+                                    </div>
+                                </div>
+                                <div class="cancha-content-modern">
+                                    <h4 class="cancha-title-modern">{{ cancha.nombre }}</h4>
+                                    <div class="cancha-info-modern">
+                                        <span class="info-item-modern">
+                                            <i class="fas fa-users"></i>
+                                            {{ cancha.capacidad }} personas
+                                        </span>
+                                    </div>
+                                    <div class="cancha-actions-modern">
+                                        <button class="btn-icon-modern btn-icon-edit" 
+                                                onclick="editarCancha('{{ cancha.id }}', '{{ cancha.nombre|escapejs }}', '{{ cancha.capacidad }}', '{{ cancha.precio_hora|escapejs }}')"
+                                                title="Editar cancha">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn-icon-modern btn-icon-view" 
+                                                onclick="openDisponibilidadModal('{{ cancha.id }}')"
+                                                title="Gestionar horarios">
+                                            <i class="fas fa-clock"></i>
+                                        </button>
+                                        <button class="btn-icon-modern btn-icon-more" 
+                                                title="Más opciones">
+                                            <i class="fas fa-ellipsis-vertical"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+                                <i class="fas fa-futbol" style="font-size: 3rem; color: var(--text-muted); opacity: 0.3; margin-bottom: 1rem;"></i>
+                                <p style="color: var(--text-muted); font-size: 1.1rem;">No hay canchas registradas en esta empresa.</p>
+                                <a href="{% url 'nueva_cancha' %}?empresa_id={{ active_empresa.id }}" class="btn-primary-modern" style="margin-top: 1rem;">
+                                    <i class="fa-solid fa-plus"></i> Crear Primera Cancha
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
         {% else %}
-            <div class="alert-box">
-                <p>Por favor, registra una empresa para comenzar.</p>
+            <div class="card-modern" style="margin-top: 2rem; text-align: center; padding: 3rem;">
+                <i class="fas fa-building" style="font-size: 4rem; color: var(--primary-color); opacity: 0.3; margin-bottom: 1rem;"></i>
+                <h3 style="color: var(--secondary-color); margin-bottom: 0.5rem;">Comienza Registrando tu Empresa</h3>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Necesitas crear una empresa para empezar a gestionar tus canchas</p>
+                <button class="btn-primary-modern" onclick="openModal('modalEmpresa')">
+                    <i class="fa-solid fa-plus"></i> Registrar Primera Empresa
+                </button>
             </div>
         {% endif %}
     </div>
 
     <!-- ================= MODALES (LO QUE FALTABA) ================= -->
 
-    <!-- 1. Modal Nueva Empresa -->
+    <!-- 1. Modal Nueva/Editar Empresa -->
     <div id="modalEmpresa" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeModal('modalEmpresa')">&times;</span>
-            <h2>Registrar Empresa</h2>
-            <form action="{% url 'save_empresa' %}" method="post" class="ajax-form">
+            <h2 id="tituloModalEmpresa">Nueva Empresa</h2>
+            <form id="formEmpresa" method="post" class="ajax-form">
                 {% csrf_token %}
+                <input type="hidden" id="empresa_id" name="empresa_id" value="">
+                
                 <!-- Campos manuales para control total del diseño -->
                 <div class="form-group">
-                    <label>Nombre Comercial</label>
-                    {{ empresa_form.nombre }}
+                    <label><i class="fa-solid fa-building"></i> Nombre Comercial *</label>
+                    <input type="text" 
+                           id="id_nombre_empresa" 
+                           name="nombre" 
+                           class="form-control" 
+                           placeholder="Ej: Complejo Deportivo El Campeón"
+                           required>
                 </div>
+                
                 <div class="form-group">
-                    <label>Gerente</label>
-                    {{ empresa_form.gerente }}
+                    <label><i class="fa-solid fa-user-tie"></i> Gerente *</label>
+                    <input type="text" 
+                           id="id_gerente" 
+                           name="gerente" 
+                           class="form-control" 
+                           placeholder="Nombre del responsable"
+                           required>
                 </div>
+                
                 <div class="form-group">
-                    <label>Teléfono</label>
-                    {{ empresa_form.telefono }}
+                    <label><i class="fa-solid fa-phone"></i> Teléfono *</label>
+                    <input type="tel" 
+                           id="id_telefono" 
+                           name="telefono" 
+                           class="form-control" 
+                           placeholder="+591 12345678"
+                           required>
                 </div>
+                
                 <div class="form-group">
-                    <label>Dirección</label>
-                    {{ empresa_form.direccion }}
+                    <label><i class="fa-solid fa-location-dot"></i> Dirección *</label>
+                    <input type="text" 
+                           id="id_direccion" 
+                           name="direccion" 
+                           class="form-control" 
+                           placeholder="Calle, zona, ciudad"
+                           required>
                 </div>
+                
                 <div class="form-group">
-                    <label>Ubicación (URL Maps)</label>
-                    {{ empresa_form.ubicacion_url }}
+                    <label><i class="fa-solid fa-map-location-dot"></i> Ubicación Google Maps (Opcional)</label>
+                    <input type="url" 
+                           id="id_ubicacion_url" 
+                           name="ubicacion_url" 
+                           class="form-control" 
+                           placeholder="https://maps.google.com/...">
+                    <small style="color: #6c757d; font-size: 0.85rem;">
+                        <i class="fa-solid fa-circle-info"></i> 
+                        Copia el enlace de Google Maps para que tus clientes puedan encontrarte fácilmente
+                    </small>
                 </div>
-                <div style="text-align: right; margin-top: 1rem;">
-                    <button type="button" class="btn-outline" onclick="closeModal('modalEmpresa')">Cancelar</button>
-                    <button type="submit" class="btn-primary">Guardar</button>
+                
+                <div style="text-align: right; margin-top: 1.5rem; display: flex; gap: 0.75rem; justify-content: flex-end;">
+                    <button type="button" class="btn-outline" onclick="closeModal('modalEmpresa')">
+                        <i class="fa-solid fa-xmark"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fa-solid fa-save"></i> Guardar
+                    </button>
                 </div>
             </form>
         </div>
@@ -187,9 +288,5 @@
         </div>
     </div>
 
-{% endblock %}
-
-{% block scripts %}
-    {{ block.super }}
-    <script src="{% static 'js/gestion.js' %}"></script>
+    <script src="{% static 'js/gestion.js' %}?v=20251128v4"></script>
 {% endblock %}

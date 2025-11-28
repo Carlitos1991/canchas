@@ -1,75 +1,122 @@
-document.addEventListener('DOMContentLoaded', () => {
+console.log('gestion.js cargado');
 
-    // --- Helper CSRF (Seguridad) ---
-    // Lo incluimos aquí por seguridad si main.js no carga primero
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
+// --- Helper CSRF (Seguridad) ---
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
             }
         }
-        return cookieValue;
     }
+    return cookieValue;
+}
 
-    // --- Funciones Globales para los Botones (window.func) ---
+// --- Funciones Globales para los Botones (FUERA del DOMContentLoaded) ---
 
-    window.openModal = function (modalId) {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            modal.classList.add('show');
-            // Resetear formularios al abrir (opcional pero recomendado)
+window.openModal = function (modalId) {
+    console.log('openModal llamado con:', modalId);
+    const modal = document.getElementById(modalId);
+    console.log('Modal encontrado:', modal);
+    
+    if (modal) {
+        modal.classList.add('show');
+        console.log('Clase "show" agregada al modal');
+        
+        // Si es el modal de empresa, preparar para nueva empresa
+        if (modalId === 'modalEmpresa') {
             const form = modal.querySelector('form');
-            // Solo resetear si es un formulario de "nuevo", no de "editar"
-            if (form && !modalId.includes('Cancha')) {
+            if (form) {
                 form.reset();
+                // Limpiar el campo oculto de empresa_id para crear nueva
+                const empresaIdInput = document.getElementById('empresa_id');
+                if (empresaIdInput) empresaIdInput.value = '';
+                
+                // Cambiar título
+                const titulo = document.getElementById('tituloModalEmpresa');
+                if (titulo) titulo.textContent = 'Nueva Empresa';
             }
-        } else {
-            console.error("No se encontró el modal:", modalId);
         }
+        // Solo resetear si es un formulario de "nuevo", no de "editar"
+        else if (!modalId.includes('Cancha')) {
+            const form = modal.querySelector('form');
+            if (form) form.reset();
+        }
+    } else {
+        console.error("No se encontró el modal:", modalId);
     }
+}
 
-    window.closeModal = function (modalId) {
-        const modal = document.getElementById(modalId);
-        if (modal) modal.classList.remove('show');
-    }
+window.closeModal = function (modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.classList.remove('show');
+}
 
-    // --- Lógica Editar Cancha ---
-    window.editarCancha = function (id, nombre, capacidad, precio) {
-        console.log("Editando cancha:", id, nombre); // Debug
+// --- Función para Editar Empresa ---
+window.editarEmpresa = function (id, nombre, gerente, telefono, direccion, ubicacionUrl) {
+    console.log("Editando empresa:", id, nombre);
+    
+    // Cambiar título del modal
+    const titulo = document.getElementById('tituloModalEmpresa');
+    if (titulo) titulo.textContent = 'Editar Empresa';
+    
+    // Asignar valores a los inputs
+    const empresaIdInput = document.getElementById('empresa_id');
+    const nombreInput = document.getElementById('id_nombre_empresa');
+    const gerenteInput = document.getElementById('id_gerente');
+    const telefonoInput = document.getElementById('id_telefono');
+    const direccionInput = document.getElementById('id_direccion');
+    const ubicacionInput = document.getElementById('id_ubicacion_url');
+    
+    if (empresaIdInput) empresaIdInput.value = id;
+    if (nombreInput) nombreInput.value = nombre;
+    if (gerenteInput) gerenteInput.value = gerente;
+    if (telefonoInput) telefonoInput.value = telefono;
+    if (direccionInput) direccionInput.value = direccion;
+    if (ubicacionInput) ubicacionInput.value = ubicacionUrl || '';
+    
+    openModal('modalEmpresa');
+}
 
-        // Asignar valores a los inputs
-        // Gracias al paso 2, estos IDs ahora existen seguro
-        const idInput = document.getElementById('edit_cancha_id');
-        const nombreInput = document.getElementById('id_nombre_cancha');
-        const capInput = document.getElementById('id_capacidad');
-        const precioInput = document.getElementById('id_precio_hora');
+// --- Lógica Editar Cancha ---
+window.editarCancha = function (id, nombre, capacidad, precio) {
+    console.log("Editando cancha:", id, nombre);
 
-        if (idInput) idInput.value = id;
-        if (nombreInput) nombreInput.value = nombre;
-        if (capInput) capInput.value = capacidad;
-        if (precioInput) precioInput.value = precio;
+    const idInput = document.getElementById('edit_cancha_id');
+    const nombreInput = document.getElementById('id_nombre_cancha');
+    const capInput = document.getElementById('id_capacidad');
+    const precioInput = document.getElementById('id_precio_hora');
 
-        openModal('modalCancha');
-    }
+    if (idInput) idInput.value = id;
+    if (nombreInput) nombreInput.value = nombre;
+    if (capInput) capInput.value = capacidad;
+    if (precioInput) precioInput.value = precio;
 
-    window.openDisponibilidadModal = function (canchaId) {
-        const input = document.getElementById('disp_cancha_id');
-        if (input) input.value = canchaId;
-        openModal('modalDisponibilidad');
-    }
+    openModal('modalCancha');
+}
+
+window.openDisponibilidadModal = function (canchaId) {
+    const input = document.getElementById('disp_cancha_id');
+    if (input) input.value = canchaId;
+    openModal('modalDisponibilidad');
+}
+
+console.log('Funciones globales definidas');
+
+// --- Eventos que SÍ necesitan esperar al DOM ---
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOMContentLoaded ejecutado en gestion.js');
 
     // --- Cerrar al hacer click fuera ---
-    window.onclick = function (event) {
+    document.addEventListener('click', function (event) {
         if (event.target.classList.contains('modal')) {
             event.target.classList.remove('show');
         }
-    }
+    });
 
     // --- Envío de Formularios AJAX ---
     const forms = document.querySelectorAll('.ajax-form');
@@ -78,12 +125,20 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
 
             const formData = new FormData(this);
-            const url = this.action;
+            
+            // Determinar la URL según el formulario
+            let url = this.action;
+            
+            // Si es el formulario de empresa y no tiene action, usar la URL correcta
+            if (this.id === 'formEmpresa') {
+                url = '/empresas/save-empresa/';
+            }
+
             const btn = this.querySelector('button[type="submit"]');
-            const originalText = btn.innerText;
+            const originalText = btn.innerHTML;
 
             btn.disabled = true;
-            btn.innerText = 'Guardando...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
 
             try {
                 const response = await fetch(url, {
@@ -97,6 +152,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await response.json();
 
                 if (data.success) {
+                    // Mostrar mensaje de éxito
+                    alert(data.message || '¡Guardado exitosamente!');
                     location.reload(); // Éxito: Recargar página
                 } else {
                     // Mostrar errores
@@ -115,7 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('Error de conexión con el servidor.');
             } finally {
                 btn.disabled = false;
-                btn.innerText = originalText;
+                btn.innerHTML = originalText;
             }
         });
     });
