@@ -1,83 +1,55 @@
+from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import AuthenticationForm
-from django.shortcuts import render, redirect
-
-from apps.empresas.models import Cancha
-from .forms import UserForm, PersonaForm, UserEditForm
+from .forms import UserForm, UserEditForm, UserLoginForm, PersonaForm
 from .models import Persona
+from apps.empresas.models import Cancha
 
 
+# --- VISTA HOME (DISPATCHER) ---
 @login_required
 def home_view(request):
-    """
-    Vista Dispatcher: Redirige o renderiza según el rol del usuario.
-    """
     user = request.user
-
-    # 1. Si es Empresario/Admin -> Redirigir a Gestión o mostrar Dashboard de Métricas
+    # 1. Si es Empresario/Admin -> Dashboard Gerente
     if user.is_superuser or user.groups.filter(name='Empresarios').exists():
-        # Opción A: Redirigir directamente a la gestión
-        # return redirect('gestion_canchas')
-
-        # Opción B: Renderizar un Dashboard de estadísticas (Más profesional)
-        return render(request, 'templates/dashboards/dashboard_cliente.html')
-
-    # 2. Si es Cliente -> Mostrar Buscador de Canchas
-    # Obtenemos canchas con disponibilidad futura (lógica simplificada)
+        return render(request, 'empresas/dashboard_manager.html')
+    # 2. Si es Cliente -> Dashboard Cliente
     canchas = Cancha.objects.filter(estado=True).select_related('empresa').prefetch_related('disponibilidades')
-
-    return render(request, 'templates/dashboards/dashboard_cliente.html', {
-        'canchas': canchas
-    })
+    return render(request, 'empresas/dashboard_cliente.html', {'canchas': canchas})
 
 
-# --- ¡NUEVA VISTA COMBINADA! ---
+# --- VISTA LOGIN / REGISTRO ---
 def login_register_view(request):
     """
     Maneja tanto el inicio de sesión como el registro en una sola página.
     """
-
-    # --- Lógica de Registro (Sign Up) ---
-    # Si los datos vienen del formulario de registro...
+    # 1. Lógica de Registro (Sign Up)
     if request.method == 'POST' and 'signup_submit' in request.POST:
         user_form = UserForm(request.POST, prefix='signup')
 
         if user_form.is_valid():
             user = user_form.save()
-            # Creamos una Persona vacía
-            Persona.objects.create(user=user)
-            # Logueamos al usuario
+            # Asignamos ROL CLIENTE automáticamente
+            Persona.objects.create(user=user, rol=Persona.Rol.CLIENTE)
             login(request, user)
-            # Redirigimos a "Editar Perfil" para que complete sus datos
             return redirect('profile_edit')
         else:
-            # Si el formulario de registro no es válido, mostramos los errores
-            # Creamos un formulario de login vacío para mostrar en la otra pestaña
-            login_form = AuthenticationForm(prefix='login')
-            # Le decimos al template que muestre el panel de registro activo
+            # Si falla, mantenemos el panel de registro abierto
+            login_form = UserLoginForm(prefix='login')
             return render(request, 'registration/login_register.html', {
                 'user_form': user_form,
                 'login_form': login_form,
-                'show_signup': True  # Variable para activar el panel de JS
+                'show_signup': True
             })
 
-    # --- Lógica de Inicio de Sesión (Login) ---
-    # Si los datos vienen del formulario de login...
+    # 2. Lógica de Inicio de Sesión (Login)
     elif request.method == 'POST' and 'login_submit' in request.POST:
-        # Reutilizamos UserForm para el login, pero solo usamos username/password
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        # Este formulario maneja la autenticación y los errores de "clave incorrecta"
-        login_form = AuthenticationForm(request, data=request.POST, prefix='login')
+        login_form = UserLoginForm(request, data=request.POST, prefix='login')
         if login_form.is_valid():
-            # --- CAMBIO AQUÍ: Usamos el form para loguear ---
             user = login_form.get_user()
             login(request, user)
             return redirect('home')
         else:
-            # El form ya tiene los errores (ej. "usuario o clave incorrecta")
-            # --- CAMBIO AQUÍ: Creamos un form de registro vacío ---
             user_form = UserForm(prefix='signup')
             return render(request, 'registration/login_register.html', {
                 'user_form': user_form,
@@ -85,11 +57,12 @@ def login_register_view(request):
                 'show_signup': False
             })
 
-    # --- Lógica GET (Carga inicial de la página) ---
+    # 3. Carga inicial (GET)
     else:
-        # Si es un GET, mostramos ambos formularios vacíos
+        if request.user.is_authenticated:
+            return redirect('home')
         user_form = UserForm(prefix='signup')
-        login_form = AuthenticationForm(prefix='login')  # Usamos UserForm también para login por simplicidad de campos
+        login_form = UserLoginForm(prefix='login')
 
     return render(request, 'registration/login_register.html', {
         'user_form': user_form,
@@ -97,58 +70,40 @@ def login_register_view(request):
     })
 
 
-# --- VISTAS PROTEGIDAS (Sin cambios) ---
-
-@login_required
-def home_view(request):
-    """
-    Vista para la página de inicio, visible solo para usuarios logueados.
-    """
-    return render(request, 'templates/home.html')
-
-
+# --- VISTAS DE PERFIL ---
 @login_required
 def profile_view(request):
-    """
-    Muestra el perfil del usuario logueado.
-    """
-    # CORRECCIÓN: Obtener el objeto 'persona' y pasarlo al contexto.
-    # Usamos getattr para evitar un error si la persona no existe por alguna razón.
     persona = getattr(request.user, 'persona', None)
-
-    # Pasamos la variable 'persona' a la plantilla.
-    return render(request, 'apps/personas/templates/profile.html', {'persona': persona})
+    return render(request, 'personas/profile.html', {'persona': persona})
 
 
 @login_required
 def profile_edit_view(request):
-    """
-    Permite al usuario logueado editar su User (email) y su Persona.
-    """
     user = request.user
-    # Usamos 'getattr' para manejar el caso de que 'persona' no exista
     persona = getattr(user, 'persona', None)
-
-    # Si no tiene persona (creado por admin), la creamos
     if not persona:
-        persona = Persona.objects.create(user=user)
+        persona = Persona.objects.create(user=user, rol=Persona.Rol.CLIENTE)
 
     if request.method == 'POST':
-        # Pasamos la instancia existente para que el formulario sepa que es una edición
         user_form = UserEditForm(request.POST, instance=user)
-        # CORRECCIÓN: Añadimos request.FILES para manejar la subida de la foto
         persona_form = PersonaForm(request.POST, request.FILES, instance=persona)
-
         if user_form.is_valid() and persona_form.is_valid():
             user_form.save()
             persona_form.save()
-            return redirect('profile')  # Redirigir al perfil para ver los cambios
+            return redirect('profile')
     else:
-        # Creamos los formularios precargados con la info actual
         user_form = UserEditForm(instance=user)
         persona_form = PersonaForm(instance=persona)
 
-    return render(request, 'apps/personas/templates/profile_edit.html', {
+    return render(request, 'personas/profile_edit.html', {
         'user_form': user_form,
         'persona_form': persona_form
     })
+
+@login_required
+def mis_reservas_view(request):
+    """
+    Vista para ver el historial de reservas del cliente.
+    """
+    # Por ahora renderizamos un template vacío
+    return render(request, 'personas/mis_reservas.html')

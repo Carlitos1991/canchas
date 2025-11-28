@@ -3,7 +3,7 @@ from django.urls import path, include
 from django.contrib.auth import views as auth_views  # Vistas de auth de Django
 
 # --- 1. Importamos TODAS las vistas que necesitamos ---
-from apps.personas.views import home_view, signup_view, profile_view, profile_edit_view
+from apps.personas.views import home_view, profile_view, profile_edit_view, mis_reservas_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -12,7 +12,7 @@ urlpatterns = [
 
     # --- AÑADIMOS UN PARÁMETRO AQUÍ ---
     path('', auth_views.LoginView.as_view(
-        template_name='registration/login.html',
+        template_name='registration/login_register.html',
         redirect_authenticated_user=True  # <-- Esta es la línea mágica
     ), name='login'),
     # --- FIN DEL CAMBIO ---
@@ -27,7 +27,7 @@ urlpatterns = [
 
     # 3. Ruta de Home
     path('home/', home_view, name='home'),
-
+    path('mis-reservas/', mis_reservas_view, name='mis_reservas'),
     # --- 4. ELIMINAMOS EL INCLUDE PROBLEMÁTICO ---
     # path('', include('apps.personas.urls')),
 ]

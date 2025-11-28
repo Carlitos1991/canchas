@@ -1,104 +1,87 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import AuthenticationForm
 from .models import Persona
 
 
+# --- 1. FORMULARIO DE REGISTRO ---
 class UserForm(forms.ModelForm):
-    """
-    Formulario para el modelo User de Django.
-    Se usa en el registro simplificado.
-    """
-    # --- AÑADIMOS EL CAMPO DE CONFIRMACIÓN ---
-    password_confirm = forms.CharField(
-        label='Confirmar Contraseña',
-        widget=forms.PasswordInput(
-            attrs={'placeholder': 'Confirmar Contraseña'}
-        )
-    )
-
     password = forms.CharField(
         label='Contraseña',
-        widget=forms.PasswordInput(
-            attrs={'placeholder': 'Contraseña'}
-        )
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Contraseña',
+            'id': 'reg_password'  # <--- ID CRÍTICO PARA EL JS
+        })
+    )
+    password_confirm = forms.CharField(
+        label='Confirmar Contraseña',
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Confirmar Contraseña',
+            'id': 'reg_confirm'  # <--- ID CRÍTICO PARA EL JS
+        })
     )
 
     class Meta:
         model = User
         fields = ('username', 'email', 'password')
         widgets = {
-            'username': forms.TextInput(attrs={'placeholder': 'Usuario'}),
-            'email': forms.EmailInput(attrs={'placeholder': 'Email'}),
-        }
-        labels = {
-            'username': 'Usuario',
-            'email': 'Email',
+            'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Usuario'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}),
         }
 
-    # --- AÑADIMOS LA LÓGICA DE VALIDACIÓN ---
     def clean(self):
-        """
-        Sobrescribimos el método clean para validar que
-        las contraseñas coincidan.
-        """
         cleaned_data = super().clean()
         password = cleaned_data.get("password")
         password_confirm = cleaned_data.get("password_confirm")
-
         if password and password_confirm and password != password_confirm:
-            # Si no coinciden, lanzamos un error de validación
             self.add_error('password_confirm', "Las contraseñas no coinciden.")
-
         return cleaned_data
 
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data["password"])
+        if commit:
+            user.save()
+        return user
 
+
+# --- 2. FORMULARIO DE LOGIN ---
+class UserLoginForm(AuthenticationForm):
+    def __init__(self, *args, **kwargs):
+        super(UserLoginForm, self).__init__(*args, **kwargs)
+
+        self.fields['username'].widget.attrs.update({
+            'class': 'form-control', 'placeholder': 'Usuario'
+        })
+        self.fields['password'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Contraseña',
+            'id': 'login_password'  # <--- ID CRÍTICO PARA EL JS
+        })
+
+
+# --- 3. OTROS FORMULARIOS (Perfil, etc) ---
 class PersonaForm(forms.ModelForm):
-    """
-    Formulario para el modelo Persona.
-    Se usa en la VISTA DE EDICIÓN de perfil.
-    """
-    fecha_nacimiento = forms.DateField(
-        label='Fecha de Nacimiento',
-        widget=forms.DateInput(
-            attrs={
-                'placeholder': 'Fecha de Nacimiento (YYYY-MM-DD)',
-                'type': 'date'
-            }
-        ),
-        required=False
-    )
-
     class Meta:
         model = Persona
-        # Se excluyen los campos que no debe llenar el usuario
-        exclude = ('user', 'estado', 'creado_en', 'actualizado_en')
-
+        exclude = ('user', 'estado', 'creado_en', 'actualizado_en', 'rol')
         widgets = {
-            'nombre': forms.TextInput(attrs={'placeholder': 'Nombre'}),
-            'apellido': forms.TextInput(attrs={'placeholder': 'Apellido'}),
-            'genero': forms.Select(attrs={'class': 'no-icon'}),  # 'no-icon' para alinear el CSS
-            'direccion': forms.TextInput(attrs={'placeholder': 'Dirección (Opcional)'}),
-            'celular': forms.TextInput(attrs={'placeholder': 'Celular (Opcional)'}),
-        }
-        labels = {
-            'nombre': 'Nombre',
-            'apellido': 'Apellido',
-            'genero': 'Género',
-            'direccion': 'Dirección',
-            'celular': 'Celular',
+            'fecha_nacimiento': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre'}),
+            'apellido': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Apellido'}),
+            'genero': forms.Select(attrs={'class': 'form-control'}),
+            'direccion': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Dirección'}),
+            'celular': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Celular'}),
         }
 
 
 class UserEditForm(forms.ModelForm):
-    """
-    Formulario para EDITAR el User (sin contraseña).
-    Se usa en la VISTA DE EDICIÓN de perfil.
-    """
-
     class Meta:
         model = User
         fields = ('username', 'email')
-        labels = {
-            'username': 'Nombre de Usuario',
-            'email': 'Correo Electrónico',
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
         }

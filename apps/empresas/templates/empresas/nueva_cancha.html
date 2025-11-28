@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Nueva Cancha{% endblock %}
+
+{% block content %}
+<div class="content-container">
+    <div class="header-section">
+        <h1 class="page-title">Crear Nueva Cancha</h1>
+        <a href="{% url 'gestion_canchas' %}" class="btn-cancel">Volver</a>
+    </div>
+
+    <div class="card">
+        <form method="post" enctype="multipart/form-data" class="form-vertical">
+            {% csrf_token %}
+            <!-- Campos del formulario renderizados por Django -->
+            {% for field in form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.errors %}<small class="error">{{ field.errors.0 }}</small>{% endif %}
+            </div>
+            {% endfor %}
+
+            <div class="form-group">
+                <label for="nuevaCanchaFotos">Fotos de la Cancha</label>
+                <input type="file" id="nuevaCanchaFotos" name="fotos" accept="image/*" multiple class="form-control">
+                <div id="previewContainer" style="margin-top:0.75rem; display:flex; gap:0.5rem; flex-wrap:wrap;"></div>
+                <div id="previewInfo"></div>
+            </div>
+
+            <button type="submit" class="btn-submit">Crear Cancha</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static 'js/image_preview.js' %}"></script>
+{% endblock %}

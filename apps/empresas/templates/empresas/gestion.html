@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Gestión de Mi Negocio{% endblock %}
+
+{% block content %}
+    <div class="content-container">
+        <!-- Encabezado -->
+        <div class="header-section">
+            <div>
+                <h1 class="page-title">Gestión de Negocio</h1>
+                <p class="text-muted">Administra tus complejos y canchas.</p>
+            </div>
+            <!-- Botón para abrir modal de Nueva Empresa -->
+            <button class="btn-primary" onclick="openModal('modalEmpresa')">
+                <i class="fa-solid fa-plus"></i> Nueva Empresa
+            </button>
+        </div>
+
+        <!-- Selector de Empresa -->
+        {% if empresas %}
+            <div class="empresa-selector-container">
+                <label for="empresaSelector">Empresa Actual:</label>
+                <select id="empresaSelector" class="form-control" onchange="location = this.value;"
+                        style="margin-top: 10px;">
+                    {% for empresa in empresas %}
+                        <option value="?empresa_id={{ empresa.id }}"
+                                {% if empresa.id == active_empresa.id %}selected{% endif %}>
+                            {{ empresa.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        {% endif %}
+
+        <!-- Listado de Canchas -->
+        {% if active_empresa %}
+            <div class="header-section" style="margin-top: 2rem; margin-bottom: 1rem;">
+                <h3>Canchas de {{ active_empresa.nombre }}</h3>
+                <a href="{% url 'nueva_cancha' %}?empresa_id={{ active_empresa.id }}" class="btn-primary-outline">
+                    <i class="fa-solid fa-plus"></i> Nueva Cancha
+                </a>
+            </div>
+
+            <div class="canchas-grid">
+                {% for cancha in canchas %}
+                    <div class="cancha-card">
+                        <div class="cancha-image">
+                            {% if cancha.foto_principal %}
+                                <img src="{{ cancha.foto_principal.imagen.url }}" alt="{{ cancha.nombre }}">
+                            {% else %}
+                                <div class="no-photo"></div> <!-- Icono por defecto -->
+                            {% endif %}
+                            <span class="price-tag">${{ cancha.precio_hora|floatformat:0 }}/hr</span>
+                        </div>
+                        <div class="cancha-content">
+                            <h3>{{ cancha.nombre }}</h3>
+                            <p class="text-muted"><small>Capacidad: {{ cancha.capacidad }} personas</small></p>
+
+                            <div class="cancha-actions">
+                                <!-- Botones que llaman al JS -->
+                                <button class="btn-outline"
+                                        onclick="editarCancha('{{ cancha.id }}', '{{ cancha.nombre|escapejs }}', '{{ cancha.capacidad }}', '{{ cancha.precio_hora|escapejs }}')">
+                                    <i class="fa-solid fa-pen"></i> Editar
+                                </button>
+                                <button class="btn-primary" onclick="openDisponibilidadModal('{{ cancha.id }}')">
+                                    <i class="fa-regular fa-clock"></i> Horarios
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="alert-box">No hay canchas registradas en esta empresa.</div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert-box">
+                <p>Por favor, registra una empresa para comenzar.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- ================= MODALES (LO QUE FALTABA) ================= -->
+
+    <!-- 1. Modal Nueva Empresa -->
+    <div id="modalEmpresa" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('modalEmpresa')">&times;</span>
+            <h2>Registrar Empresa</h2>
+            <form action="{% url 'save_empresa' %}" method="post" class="ajax-form">
+                {% csrf_token %}
+                <!-- Campos manuales para control total del diseño -->
+                <div class="form-group">
+                    <label>Nombre Comercial</label>
+                    {{ empresa_form.nombre }}
+                </div>
+                <div class="form-group">
+                    <label>Gerente</label>
+                    {{ empresa_form.gerente }}
+                </div>
+                <div class="form-group">
+                    <label>Teléfono</label>
+                    {{ empresa_form.telefono }}
+                </div>
+                <div class="form-group">
+                    <label>Dirección</label>
+                    {{ empresa_form.direccion }}
+                </div>
+                <div class="form-group">
+                    <label>Ubicación (URL Maps)</label>
+                    {{ empresa_form.ubicacion_url }}
+                </div>
+                <div style="text-align: right; margin-top: 1rem;">
+                    <button type="button" class="btn-outline" onclick="closeModal('modalEmpresa')">Cancelar</button>
+                    <button type="submit" class="btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. Modal Editar Cancha (Edición Rápida) -->
+    <div id="modalCancha" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('modalCancha')">&times;</span>
+            <h2>Editar Cancha</h2>
+            <form action="{% url 'save_cancha' %}" method="post" class="ajax-form" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="empresa_id" value="{{ active_empresa.id }}">
+                <input type="hidden" name="cancha_id" id="edit_cancha_id">
+
+                <div class="form-group">
+                    <label>Nombre</label>
+                    {{ cancha_form.nombre }} <!-- Asegúrate que tu form tenga id_nombre_cancha en attrs -->
+                </div>
+                <div class="form-group">
+                    <label>Capacidad</label>
+                    {{ cancha_form.capacidad }}
+                </div>
+                <div class="form-group">
+                    <label>Precio por Hora</label>
+                    {{ cancha_form.precio_hora }}
+                </div>
+                <!-- Nota: Las fotos se editan mejor en la vista completa 'nueva_cancha' -->
+
+                <div style="text-align: right; margin-top: 1rem;">
+                    <button type="button" class="btn-outline" onclick="closeModal('modalCancha')">Cancelar</button>
+                    <button type="submit" class="btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. Modal Disponibilidad -->
+    <div id="modalDisponibilidad" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('modalDisponibilidad')">&times;</span>
+            <h2>Añadir Horario</h2>
+            <form action="{% url 'save_disponibilidad' %}" method="post" class="ajax-form">
+                {% csrf_token %}
+                <input type="hidden" name="cancha_id" id="disp_cancha_id">
+
+                <div class="form-group">
+                    <label>Fecha</label>
+                    {{ disponibilidad_form.fecha }}
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <div class="form-group" style="flex:1;">
+                        <label>Hora Inicio</label>
+                        {{ disponibilidad_form.hora_inicio }}
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label>Hora Fin</label>
+                        {{ disponibilidad_form.hora_fin }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Estado Inicial</label>
+                    {{ disponibilidad_form.estado }}
+                </div>
+
+                <div style="text-align: right; margin-top: 1rem;">
+                    <button type="button" class="btn-outline" onclick="closeModal('modalDisponibilidad')">Cancelar
+                    </button>
+                    <button type="submit" class="btn-primary">Crear Horario</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static 'js/gestion.js' %}"></script>
+{% endblock %}

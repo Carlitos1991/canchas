@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Panel de Control{% endblock %}
+
+{% block content %}
+<div class="content-container">
+    <div class="header-section">
+        <div>
+            <h1 class="page-title">Panel de Control</h1>
+            <p class="text-muted">Resumen de actividad de tus complejos deportivos.</p>
+        </div>
+        <a href="{% url 'gestion_canchas' %}" class="btn-primary">
+            <i class="fa-solid fa-gear"></i> Gestionar Canchas
+        </a>
+    </div>
+
+    <!-- Tarjetas de Resumen (KPIs) -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon bg-blue"><i class="fa-solid fa-calendar-check"></i></div>
+            <div class="stat-info">
+                <h3>12</h3>
+                <p>Reservas Hoy</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon bg-green"><i class="fa-solid fa-sack-dollar"></i></div>
+            <div class="stat-info">
+                <h3>$450</h3>
+                <p>Ingresos Hoy</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon bg-purple"><i class="fa-solid fa-users"></i></div>
+            <div class="stat-info">
+                <h3>5</h3>
+                <p>Nuevos Clientes</p>
+            </div>
+        </div>
+    </div>
+
+    <h2 class="section-title">Próximas Reservas</h2>
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Hora</th>
+                    <th>Cancha</th>
+                    <th>Cliente</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Aquí iterarías sobre las reservas reales -->
+                <tr>
+                    <td>18:00 - 19:00</td>
+                    <td>Cancha Principal</td>
+                    <td>Juan Pérez</td>
+                    <td><span class="badge badge-confirmed">Confirmado</span></td>
+                    <td>
+                        <button class="btn-icon"><i class="fa-solid fa-eye"></i></button>
+                    </td>
+                </tr>
+                 <tr>
+                    <td>19:00 - 20:00</td>
+                    <td>Cancha 2</td>
+                    <td>Maria Gomez</td>
+                    <td><span class="badge badge-pending">Pendiente</span></td>
+                    <td>
+                        <button class="btn-icon"><i class="fa-solid fa-eye"></i></button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

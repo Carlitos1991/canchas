@@ -73,7 +73,7 @@ def gestion_canchas_view(request):
         'cancha_form': forms_module.CanchaForm(),
         'disponibilidad_form': forms_module.DisponibilidadForm(),  # <-- Nuevo formulario
     }
-    return render(request, 'apps/empresas/templates/gestion.html', context)
+    return render(request, 'empresas/gestion.html', context)
 
 
 @login_required
