@@ -1,9 +1,35 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
+from django.shortcuts import render, redirect
+
+from apps.empresas.models import Cancha
 from .forms import UserForm, PersonaForm, UserEditForm
 from .models import Persona
+
+
+@login_required
+def home_view(request):
+    """
+    Vista Dispatcher: Redirige o renderiza según el rol del usuario.
+    """
+    user = request.user
+
+    # 1. Si es Empresario/Admin -> Redirigir a Gestión o mostrar Dashboard de Métricas
+    if user.is_superuser or user.groups.filter(name='Empresarios').exists():
+        # Opción A: Redirigir directamente a la gestión
+        # return redirect('gestion_canchas')
+
+        # Opción B: Renderizar un Dashboard de estadísticas (Más profesional)
+        return render(request, 'templates/dashboards/dashboard_cliente.html')
+
+    # 2. Si es Cliente -> Mostrar Buscador de Canchas
+    # Obtenemos canchas con disponibilidad futura (lógica simplificada)
+    canchas = Cancha.objects.filter(estado=True).select_related('empresa').prefetch_related('disponibilidades')
+
+    return render(request, 'templates/dashboards/dashboard_cliente.html', {
+        'canchas': canchas
+    })
 
 
 # --- ¡NUEVA VISTA COMBINADA! ---
@@ -78,7 +104,7 @@ def home_view(request):
     """
     Vista para la página de inicio, visible solo para usuarios logueados.
     """
-    return render(request, 'home.html')
+    return render(request, 'templates/home.html')
 
 
 @login_required
@@ -89,9 +115,9 @@ def profile_view(request):
     # CORRECCIÓN: Obtener el objeto 'persona' y pasarlo al contexto.
     # Usamos getattr para evitar un error si la persona no existe por alguna razón.
     persona = getattr(request.user, 'persona', None)
-    
+
     # Pasamos la variable 'persona' a la plantilla.
-    return render(request, 'personas/profile.html', {'persona': persona})
+    return render(request, 'apps/personas/templates/profile.html', {'persona': persona})
 
 
 @login_required
@@ -122,7 +148,7 @@ def profile_edit_view(request):
         user_form = UserEditForm(instance=user)
         persona_form = PersonaForm(instance=persona)
 
-    return render(request, 'personas/profile_edit.html', {
+    return render(request, 'apps/personas/templates/profile_edit.html', {
         'user_form': user_form,
         'persona_form': persona_form
     })

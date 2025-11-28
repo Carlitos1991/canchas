@@ -1,0 +1,97 @@
+{% extends "templates/base.html" %}
+{% load static %}
+
+{% block title %}Nueva Cancha{% endblock %}
+
+{% block content %}
+<div class="content-container">
+    <div class="header-section">
+        <div>
+            <h1 class="page-title">Crear Nueva Cancha</h1>
+            <p class="text-muted">Rellena los datos y agrega fotos de la cancha.</p>
+        </div>
+        <a href="{% url 'gestion_canchas' %}" class="btn-cancel">Volver</a>
+    </div>
+
+    <div class="card">
+        <form method="post" enctype="multipart/form-data" class="form-vertical">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ form.nombre.label_tag }}
+                {{ form.nombre }}
+                {% if form.nombre.errors %}<small class="error">{{ form.nombre.errors.0 }}</small>{% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.capacidad.label_tag }}
+                {{ form.capacidad }}
+                {% if form.capacidad.errors %}<small class="error">{{ form.capacidad.errors.0 }}</small>{% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.precio_hora.label_tag }}
+                {{ form.precio_hora }}
+                {% if form.precio_hora.errors %}<small class="error">{{ form.precio_hora.errors.0 }}</small>{% endif %}
+            </div>
+            <div class="form-group">
+                <label for="nuevaCanchaFotos">Fotos de la Cancha</label>
+                <input type="file" id="nuevaCanchaFotos" name="fotos" accept="image/*" multiple class="form-control">
+                <p class="help-text">Puedes seleccionar múltiples imágenes (jpg, png).</p>
+                <div id="previewContainer" style="margin-top:0.75rem; display:flex; gap:0.5rem; flex-wrap:wrap;
+                    align-items:center;
+                "></div>
+                <div id="previewInfo" style="margin-top:0.5rem; font-size:0.9rem; color:var(--text-secondary);"></div>
+            </div>
+
+            <div class="modal-footer" style="border-top: none; justify-content: flex-start; padding: 0; margin-top: 1rem;">
+                <button type="submit" class="btn-submit">Crear Cancha</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    (function(){
+        const input = document.getElementById('nuevaCanchaFotos');
+        const preview = document.getElementById('previewContainer');
+        const info = document.getElementById('previewInfo');
+        if (!input) return;
+        function clearPreview(){
+            while(preview.firstChild) preview.removeChild(preview.firstChild);
+            info.textContent = '';
+        }
+        input.addEventListener('change', function(e){
+            clearPreview();
+            const files = Array.from(input.files || []);
+            if (files.length === 0) {
+                info.textContent = 'No hay archivos seleccionados.';
+                return;
+            }
+            info.textContent = files.length + ' archivo(s) seleccionado(s).';
+            files.slice(0,6).forEach(file => {
+                if (!file.type.startsWith('image/')) return;
+                const reader = new FileReader();
+                reader.onload = function(evt){
+                    const img = document.createElement('img');
+                    img.src = evt.target.result;
+                    img.alt = file.name;
+                    img.title = file.name;
+                    img.style.width = '120px';
+                    img.style.height = '80px';
+                    img.style.objectFit = 'cover';
+                    img.style.border = '1px solid #ddd';
+                    img.style.borderRadius = '6px';
+                    preview.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
+            if (files.length > 6) {
+                const more = document.createElement('div');
+                more.textContent = '+' + (files.length - 6) + ' más';
+                more.style.padding = '6px 10px';
+                more.style.border = '1px dashed #ccc';
+                more.style.borderRadius = '6px';
+                more.style.color = 'var(--text-secondary)';
+                preview.appendChild(more);
+            }
+        });
+    })();
+</script>
+{% endblock %}

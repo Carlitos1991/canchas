@@ -24,97 +24,101 @@
 -->
 <body class="{% if not user.is_authenticated %}logged-out{% endif %}">
 
-    {% if user.is_authenticated %}
-        <!-- =================================== -->
-        <!--     NUEVO SIDEBAR                 -->
-        <!-- =================================== -->
-        <aside class="sidebar">
-            <!-- Encabezado del Sidebar (Logo y Botón de Colapsar) -->
-            <div class="sidebar-header">
-                <a href="{% url 'home' %}" class="sidebar-brand">
-                    <img src="{% static 'media/icono.png' %}" alt="Logo" class="sidebar-logo">
-                    <span class="sidebar-brand-text">Canchas</span>
+{% if user.is_authenticated %}
+    <!-- =================================== -->
+    <!--     NUEVO SIDEBAR                 -->
+    <!-- =================================== -->
+    <aside class="sidebar">
+        <!-- Encabezado del Sidebar (Logo y Botón de Colapsar) -->
+        <div class="sidebar-header">
+            <a href="{% url 'home' %}" class="sidebar-brand">
+                <img src="{% static 'media/icono.png' %}" alt="Logo" class="sidebar-logo">
+                <span class="sidebar-brand-text">Canchas</span>
+            </a>
+            <button id="sidebar-toggle" class="sidebar-toggle-btn" title="Colapsar sidebar">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+        </div>
+
+        <!-- Navegación Principal -->
+        <nav class="sidebar-nav">
+            {% for item in sidebar_menu %}
+                <!-- La lógica de 'active' compara la URL actual o el nombre de la vista -->
+                <a href="{{ item.url }}"
+                   class="nav-link {% if request.resolver_match.url_name == item.active_check %}active{% endif %}">
+                    <i class="nav-icon fa-solid {{ item.icon }}"></i>
+                    <span class="nav-text">{{ item.label }}</span>
                 </a>
-                <button id="sidebar-toggle" class="sidebar-toggle-btn" title="Colapsar sidebar">
-                    <i class="fa-solid fa-chevron-left"></i>
-                </button>
+            {% endfor %}
+
+            <!-- Ítems fijos de configuración siempre visibles -->
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 0.5rem 1rem;">
+
+            <a href="{% url 'profile' %}"
+               class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+                <i class="nav-icon fa-solid fa-user-gear"></i>
+                <span class="nav-text">Mi Perfil</span>
+            </a>
+        </nav>
+
+        <!-- Pie de Sidebar (Modo Oscuro y Perfil) -->
+        <div class="sidebar-footer">
+            <!-- Interruptor de Modo Oscuro -->
+            <div class="theme-switch-wrapper">
+                <i class="nav-icon fa-solid fa-moon"></i>
+                <span class="nav-text">Modo Oscuro</span>
+                <label class="theme-switch" for="theme-toggle-checkbox">
+                    <input type="checkbox" id="theme-toggle-checkbox">
+                    <span class="slider round"></span>
+                </label>
             </div>
 
-            <!-- Navegación Principal -->
-            <nav class="sidebar-nav">
-                <!-- --- CORRECCIÓN DE SINTAXIS 'active' --- -->
-                <a href="{% url 'home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
-                    <i class="nav-icon fa-solid fa-house"></i>
-                    <span class="nav-text">Dashboard</span>
-                </a>
-                <a href="{% url 'profile' %}" class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
-                    <i class="nav-icon fa-solid fa-user"></i>
-                    <span class="nav-text">Mi Perfil</span>
-                </a>
-                <a href="{% url 'profile_edit' %}" class="nav-link {% if request.resolver_match.url_name == 'profile_edit' %}active{% endif %}">
-                    <i class="nav-icon fa-solid fa-pen-to-square"></i>
-                    <span class="nav-text">Editar Perfil</span>
-                </a>
-            </nav>
+            <!-- Perfil del Usuario -->
+            <div class="sidebar-profile">
+                <!-- Usamos un placeholder genérico para el avatar -->
+                <img src="https://placehold.co/40x40/55B8BA/FFFFFF?text={{ user.username.0|upper }}"
+                     alt="Avatar"
+                     class="profile-avatar"
+                     onerror="this.src='https://placehold.co/40x40/55B8BA/FFFFFF?text=?'">
 
-            <!-- Pie de Sidebar (Modo Oscuro y Perfil) -->
-            <div class="sidebar-footer">
-                <!-- Interruptor de Modo Oscuro -->
-                <div class="theme-switch-wrapper">
-                    <i class="nav-icon fa-solid fa-moon"></i>
-                    <span class="nav-text">Modo Oscuro</span>
-                    <label class="theme-switch" for="theme-toggle-checkbox">
-                        <input type="checkbox" id="theme-toggle-checkbox">
-                        <span class="slider round"></span>
-                    </label>
-                </div>
-
-                <!-- Perfil del Usuario -->
-                <div class="sidebar-profile">
-                    <!-- Usamos un placeholder genérico para el avatar -->
-                    <img src="https://placehold.co/40x40/55B8BA/FFFFFF?text={{ user.username.0|upper }}"
-                         alt="Avatar"
-                         class="profile-avatar"
-                         onerror="this.src='https://placehold.co/40x40/55B8BA/FFFFFF?text=?'">
-
-                    <div class="profile-info">
+                <div class="profile-info">
                         <span class="profile-name">
                             {{ user.persona.nombre|default:user.username }}
                         </span>
-                        <span class="profile-role">Usuario</span>
-                    </div>
-
-                    <!-- Botón de Logout -->
-                    <form method="post" action="{% url 'logout' %}" class="form-logout">
-                        {% csrf_token %}
-                        <button type="submit" class="btn-logout" title="Cerrar Sesión">
-                            <i class="fa-solid fa-right-from-bracket"></i>
-                        </button>
-                    </form>
+                    <span class="profile-role">Usuario</span>
                 </div>
+
+                <!-- Botón de Logout -->
+                <form method="post" action="{% url 'logout' %}" class="form-logout">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-logout" title="Cerrar Sesión">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </form>
             </div>
-        </aside>
-    {% endif %}
+        </div>
+    </aside>
+{% endif %}
 
-    <!-- =================================== -->
-    <!--     CONTENEDOR DE PÁGINA ÚNICO    -->
-    <!-- --- CORRECCIÓN DEL ERROR 'block content' DUPLICADO --- -->
-    <!-- =================================== -->
-    <!--
-    -->
-    <main class="{% if user.is_authenticated %}main-content{% else %}main-container{% endif %}">
-        {% block content %}{% endblock %}
-    </main>
+<!-- =================================== -->
+<!--     CONTENEDOR DE PÁGINA ÚNICO    -->
+<!-- --- CORRECCIÓN DEL ERROR 'block content' DUPLICADO --- -->
+<!-- =================================== -->
+<!--
+-->
+<main class="{% if user.is_authenticated %}main-content{% else %}main-container{% endif %}">
+    {% block content %}{% endblock %}
+</main>
 
 
-    <!-- =================================== -->
-    <!--     SCRIPTS GLOBALES              -->
-    <!-- =================================== -->
+<!-- =================================== -->
+<!--     SCRIPTS GLOBALES              -->
+<!-- =================================== -->
 
-    <!-- JS para el login (animación, etc) -->
-    <script src="{% static 'js/auth.js' %}"></script>
+<!-- JS para el login (animación, etc) -->
+<script src="{% static 'js/auth.js' %}"></script>
 
-    <!-- NUEVO JS para el sidebar y modo oscuro -->
-    <script src="{% static 'js/main.js' %}"></script>
+<!-- NUEVO JS para el sidebar y modo oscuro -->
+<script src="{% static 'js/main.js' %}"></script>
 </body>
 </html>

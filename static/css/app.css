@@ -1,0 +1,123 @@
+/* --- VARIABLES Y ESTILOS BASE --- */
+:root {
+    --primary-color: #55B8BA;
+    --accent-color: #4A9C9E;
+    --bg-primary: #ffffff;
+    --bg-secondary: #f4f7f6;
+    --text-primary: #333;
+    --text-secondary: #666;
+    --border-color: #e5e7eb;
+    --sidebar-width: 260px;
+    --navbar-height: 70px;
+}
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    margin: 0;
+}
+.content-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* ============================================================== */
+/* --- LAYOUT PRINCIPAL DE LA APLICACIÓN --- */
+/* ============================================================== */
+
+/* Layout por defecto (para Clientes, sin sidebar) */
+.top-navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--navbar-height);
+    background-color: var(--bg-primary);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    z-index: 100;
+}
+.main-content {
+    padding-top: calc(var(--navbar-height) + 1.5rem);
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+/* Modificaciones cuando el sidebar está presente (para Gestores) */
+body.has-sidebar .sidebar {
+    display: flex;
+}
+body.has-sidebar .top-navbar {
+    left: var(--sidebar-width);
+}
+body.has-sidebar .main-content {
+    margin-left: var(--sidebar-width);
+}
+
+/* ============================================================== */
+/* --- COMPONENTES DE LA APLICACIÓN --- */
+/* ============================================================== */
+
+/* Sidebar (oculto por defecto) */
+.sidebar {
+    display: none;
+    width: var(--sidebar-width);
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: var(--bg-primary);
+    box-shadow: 2px 0 15px rgba(0,0,0,0.05);
+    flex-direction: column;
+    z-index: 200;
+}
+.sidebar-header {
+    height: var(--navbar-height);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid var(--border-color);
+}
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+.sidebar-logo { height: 35px; }
+.sidebar-nav { flex-grow: 1; padding: 1rem 0; }
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 0.8rem 1.5rem;
+    margin: 0.2rem 1rem;
+    border-radius: 6px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 500;
+}
+.nav-link:hover { background-color: var(--bg-secondary); }
+.nav-link.active { background-color: var(--primary-color); color: white; }
+
+/* Navbar */
+.navbar-left { display: flex; align-items: center; gap: 1rem; }
+.navbar-title { margin: 0; font-size: 1.25rem; }
+.navbar-toggle-btn { background: none; border: none; font-size: 1.5rem; color: var(--text-secondary); cursor: pointer; }
+.navbar-brand { text-decoration: none; color: var(--text-primary); display: flex; align-items: center; gap: 10px; font-size: 1.25rem; font-weight: 700; }
+.navbar-right { display: flex; align-items: center; }
+
+/* Dropdown de Usuario */
+.user-dropdown { position: relative; }
+.dropdown-trigger { background: none; border: none; display: flex; align-items: center; gap: 0.75rem; cursor: pointer; padding: 0.5rem; border-radius: 8px; }
+.profile-avatar { width: 40px; height: 40px; border-radius: 50%; }
+.dropdown-menu { position: absolute; top: 120%; right: 0; width: 220px; background-color: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.2s ease; z-index: 1000; }
+.dropdown-menu.show { opacity: 1; visibility: visible; transform: translateY(0); }
+.dropdown-header { padding: 1rem; border-bottom: 1px solid var(--border-color); }
+.dropdown-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; color: var(--text-secondary); text-decoration: none; width: 100%; border: none; background: none; text-align: left; cursor: pointer; }
+.dropdown-item:hover { background-color: var(--bg-secondary); }

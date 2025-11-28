@@ -14,7 +14,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Busca el .env en el directorio BASE_DIR (la raíz del proyecto)
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
@@ -26,7 +25,6 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-
 
 # Application definition
 
@@ -41,6 +39,7 @@ INSTALLED_APPS = [
     # --- NUESTRAS APPS ---
     # que busque en la carpeta 'apps'.
     'apps.personas',
+    'apps.empresas',
 ]
 
 MIDDLEWARE = [
@@ -58,22 +57,21 @@ ROOT_URLCONF = 'canchas.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        # --- AÑADIMOS NUESTRO DIRECTORIO GLOBAL DE TEMPLATES ---
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
-        'APP_DIRS': True, # Esto permite que Django busque templates dentro de cada app
+        'DIRS': [os.path.join(BASE_DIR, 'templates')], # Para templates globales (base.html)
+        'APP_DIRS': True, # Django buscará en apps/tu_app/templates/
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'apps.personas.context_processors.sidebar_menu',
             ],
         },
     },
 ]
 
 WSGI_APPLICATION = 'canchas.wsgi.application'
-
 
 # Database
 DATABASES = {
@@ -87,7 +85,6 @@ DATABASES = {
     }
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
@@ -95,18 +92,16 @@ AUTH_PASSWORD_VALIDATORS = [
     # ... (deja los validadores que vienen por defecto)
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-LANGUAGE_CODE = 'es' # Cambiado a español
+LANGUAGE_CODE = 'es'  # Cambiado a español
 
 TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/

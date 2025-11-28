@@ -1,0 +1,81 @@
+{% extends "templates/base.html" %}
+{% load static %}
+
+{% block title %}Gestión de Mi Negocio{% endblock %}
+
+{% block content %}
+<div class="content-container">
+    <div class="header-section">
+        <div>
+            <h1 class="page-title">Gestión de Negocio</h1>
+            <p class="text-muted">Selecciona una empresa para ver sus canchas o registra una nueva.</p>
+        </div>
+        <button class="btn-primary" onclick="openModal('modalEmpresa', true)">
+            <i class="fa-solid fa-plus"></i> 
+            Registrar Nueva Empresa
+        </button>
+    </div>
+
+    {% if empresas %}
+    <div class="empresa-selector-container">
+        <label for="empresaSelector">Selecciona una empresa para gestionar:</label>
+        <select id="empresaSelector" class="form-control" onchange="location = this.value;">
+            {% for empresa in empresas %}
+                <option value="?empresa_id={{ empresa.id }}" {% if empresa.id == active_empresa.id %}selected{% endif %}>
+                    {{ empresa.nombre }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    {% endif %}
+
+    <hr class="section-divider">
+
+    {% if active_empresa %}
+        <div class="canchas-grid">
+            {% for cancha in canchas %}
+            <div class="cancha-card">
+                <div class="cancha-image">
+                    {% if cancha.foto_principal %}
+                        <img src="{{ cancha.foto_principal.imagen.url }}" alt="{{ cancha.nombre }}">
+                    {% else %}
+                        <div class="no-photo"></div>
+                    {% endif %}
+                    <span class="price-tag">${{ cancha.precio_hora|floatformat:0 }}/hr</span>
+                </div>
+                <div class="cancha-content">
+                    <h3>{{ cancha.nombre }}</h3>
+                    <div class="cancha-actions">
+                        <button class="btn-outline" onclick="editarCancha('{{ cancha.id }}', '{{ cancha.nombre|escapejs }}', '{{ cancha.capacidad|escapejs }}', '{{ cancha.precio_hora|escapejs }}')">Editar</button>
+                        <button class="btn-primary-outline" onclick="openDisponibilidadModal('{{ cancha.id }}')">
+                            <i class="fa-solid fa-plus"></i> Añadir Horario
+                        </button>
+                    </div>
+                </div>
+                <div class="disponibilidad-section">
+                    <h4>Próximos Horarios</h4>
+                    <div class="disponibilidad-list">
+                        {% for d in cancha.disponibilidades.all|slice:":5" %}
+                            <div class="disponibilidad-item status-{{ d.estado|lower }}">
+                                <span>{{ d.fecha|date:"D, d M" }} - {{ d.hora_inicio|time:"H:i" }}</span>
+                                <span class="estado">{{ d.get_estado_display }}</span>
+                            </div>
+                        {% empty %}
+                            <p class="no-disponibilidad">No hay horarios definidos.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert-box">
+            <p>Para comenzar, registra tu primera empresa.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block modals %}
+<!-- Modales para Empresa, Cancha, Disponibilidad -->
+{% endblock %}
