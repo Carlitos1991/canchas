@@ -1,5 +1,5 @@
 <!-- Modal Editar Usuario -->
-<div id="modalEditarUsuario" class="modal" style="display: none;">
+<div id="modalEditarUsuario" class="modal modal-usuarios">
     <div class="modal-content" style="max-width: 500px;">
         <div class="modal-header">
             <h3 style="margin: 0; color: #1F2937; font-weight: 700;">
@@ -57,7 +57,7 @@
 
 <style>
 /* Estilos del Modal */
-.modal {
+.modal-usuarios {
     position: fixed;
     top: 0;
     left: 0;
@@ -66,10 +66,14 @@
     background: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(4px);
     z-index: 9999;
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
     animation: fadeIn 0.3s ease;
+}
+
+.modal-usuarios.show {
+    display: flex;
 }
 
 @keyframes fadeIn {
@@ -225,8 +229,7 @@
 
 <script>
 function editarUsuario(userId, username, rol, estado) {
-    // Prevenir propagación del evento
-    event.stopPropagation();
+    console.log('editarUsuario llamado con:', userId, username, rol, estado);
     
     // Llenar el formulario con los datos
     document.getElementById('edit_user_id').value = userId;
@@ -234,28 +237,51 @@ function editarUsuario(userId, username, rol, estado) {
     document.getElementById('edit_rol').value = rol;
     document.getElementById('edit_estado').value = estado;
     
-    // Mostrar el modal
-    document.getElementById('modalEditarUsuario').style.display = 'flex';
+    // Mostrar el modal usando la clase 'show'
+    const modal = document.getElementById('modalEditarUsuario');
+    console.log('Modal encontrado:', modal);
+    console.log('Clases del modal antes:', modal.className);
+    
+    modal.classList.add('show');
+    
+    console.log('Clases del modal después:', modal.className);
+    console.log('Modal debería estar visible ahora');
 }
 
 function cerrarModal() {
-    document.getElementById('modalEditarUsuario').style.display = 'none';
+    console.log('cerrarModal llamado');
+    const modal = document.getElementById('modalEditarUsuario');
+    modal.classList.remove('show');
 }
 
 // Cerrar modal al hacer clic fuera de él
-document.addEventListener('click', function(event) {
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOMContentLoaded - modal_editar_usuario.html');
     const modal = document.getElementById('modalEditarUsuario');
-    const modalContent = modal ? modal.querySelector('.modal-content') : null;
     
-    if (event.target === modal && !modalContent.contains(event.target)) {
-        cerrarModal();
+    if (modal) {
+        console.log('Modal de edición encontrado y configurado');
+        modal.addEventListener('click', function(event) {
+            console.log('Click en modal, target:', event.target.id);
+            // Solo cerrar si se hace click directamente en el fondo del modal (no en el contenido)
+            if (event.target === modal) {
+                console.log('Click en el fondo del modal, cerrando...');
+                cerrarModal();
+            }
+        });
+    } else {
+        console.error('Modal de edición NO encontrado');
     }
 });
 
 // Cerrar modal con tecla ESC
 document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
-        cerrarModal();
+        const modal = document.getElementById('modalEditarUsuario');
+        if (modal && modal.classList.contains('show')) {
+            console.log('ESC presionado, cerrando modal');
+            cerrarModal();
+        }
     }
 });
 

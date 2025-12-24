@@ -5,6 +5,8 @@ from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.conf.urls.static import static
 
+from apps.empresas.views import api_listar_canchas, obtener_horarios_cancha
+from apps.personas.views import api_login_movil
 # Importamos TU vista personalizada
 from apps.personas.views import home_view, profile_view, profile_edit_view, login_register_view, mis_reservas_view, \
     cancelar_reserva, admin_usuarios_view, update_user_role, get_user_profile_api, crear_usuario_view, \
@@ -23,7 +25,9 @@ urlpatterns = [
     path('login_register/', login_register_view, name='login_register'),
 
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
-
+    path('api/login/', api_login_movil, name='api_login_movil'),
+    path('api/canchas/', api_listar_canchas, name='api_listar_canchas'),
+    path('api/canchas/<int:cancha_id>/horarios/', obtener_horarios_cancha, name='api_horarios'),
     # Rutas de App
     path('profile/', profile_view, name='profile'),
     path('profile/edit/', profile_edit_view, name='profile_edit'),

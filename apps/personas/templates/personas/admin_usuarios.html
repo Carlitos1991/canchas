@@ -184,7 +184,7 @@
                                         <i class="fa-solid fa-eye"></i>
                                     </button>
                                     <button class="btn-action-modern btn-edit-modern" 
-                                            onclick="event.preventDefault(); editarUsuario('{{ u.id }}', '{{ u.username }}', '{{ u.persona.rol }}', '{{ u.persona.estado|yesno:'true,false' }}')" 
+                                            onclick="editarUsuario('{{ u.id }}', '{{ u.username }}', '{{ u.persona.rol }}', '{{ u.persona.estado|yesno:'true,false' }}'); return false;" 
                                             title="Editar">
                                         <i class="fa-solid fa-pen"></i>
                                     </button>

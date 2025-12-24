@@ -113,8 +113,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Cerrar al hacer click fuera ---
     document.addEventListener('click', function (event) {
-        if (event.target.classList.contains('modal')) {
+        // Solo cerrar modales de gestion.js, NO los modales de admin_usuarios
+        if (event.target.classList.contains('modal') && 
+            !event.target.classList.contains('modal-usuarios') &&
+            !event.target.classList.contains('modal-overlay')) {
+            console.log('gestion.js cerrando modal:', event.target.id);
             event.target.classList.remove('show');
+        } else if (event.target.classList.contains('modal')) {
+            console.log('gestion.js detectó modal pero NO lo cierra (es modal-usuarios o modal-overlay):', event.target.id);
         }
     });
 

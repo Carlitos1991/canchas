@@ -33,78 +33,219 @@
             </button>
             <button class="btn-outline"
                     style="border-radius: 20px; background: white; border-color: transparent; box-shadow: var(--shadow-sm);">
-                🎾 Tenis
-            </button>
-            <button class="btn-outline"
-                    style="border-radius: 20px; background: white; border-color: transparent; box-shadow: var(--shadow-sm);">
                 🏐 Voley
             </button>
         </div>
 
         <div class="dashboard-header">
-            <h2 class="dashboard-title" style="font-size: 1.5rem;">Canchas Destacadas</h2>
+            <h2 class="dashboard-title" style="font-size: 1.5rem;">
+                <i class="fa-solid fa-building"></i> Complejos Deportivos Disponibles
+            </h2>
         </div>
 
-        <div class="client-dashboard-grid">
-            {% for cancha in canchas %}
-                <div class="cancha-card-client"
-                     style="border: none; box-shadow: var(--shadow-md); border-radius: 16px; overflow: hidden; transition: transform 0.2s;">
-                    <div class="cancha-image" style="height: 200px;">
-                        {% if cancha.foto_principal %}
-                            <img src="{{ cancha.foto_principal.imagen.url }}" alt="{{ cancha.nombre }}"
-                                 style="width: 100%; height: 100%; object-fit: cover;">
-                        {% else %}
-                            <div class="no-photo"
-                                 style="background: #ddd; height: 100%; display: flex; align-items: center; justify-content: center; color: #999;">
-                                <i class="fa-regular fa-image" style="font-size: 3rem;"></i>
-                            </div>
+        <!-- Grid de Empresas en Columnas -->
+        <div class="empresas-grid-client">
+
+            {% for empresa in empresas %}
+
+                <a href="{% url 'ver_canchas_empresa' empresa.id %}" class="empresa-card-client"
+                   style="text-decoration: none; color: inherit;">
+
+                    <div class="empresa-header">
+                        <div class="empresa-info">
+                            <h3 class="empresa-nombre">
+                                <i class="fa-solid fa-building-circle-check"></i>
+                                {{ empresa.nombre }}
+                            </h3>
+                            <p class="empresa-detalles">
+                                <i class="fa-solid fa-location-dot"></i> {{ empresa.direccion|default:"Sin dirección" }}
+                            </p>
+                            {% if empresa.telefono %}
+                                <p class="empresa-detalles">
+                                    <i class="fa-solid fa-phone"></i> {{ empresa.telefono }}
+                                </p>
+                            {% endif %}
+                        </div>
+
+                        {% if empresa.ubicacion_url %}
+                            <button onclick="event.preventDefault(); event.stopPropagation(); window.open('{{ empresa.ubicacion_url }}', '_blank');"
+                                    class="btn-ubicacion" title="Ver en Google Maps">
+                                <i class="fa-solid fa-map-location-dot"></i>
+                            </button>
                         {% endif %}
-                        <span class="price-tag"
-                              style="position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.8); color: white; padding: 5px 12px; border-radius: 20px; font-weight: bold;">
-                    ${{ cancha.precio_hora|floatformat:0 }}/hr
-                </span>
                     </div>
 
-                    <div class="cancha-content" style="padding: 1.5rem;">
-                        <h3 style="margin: 0 0 5px 0; font-size: 1.25rem;">{{ cancha.nombre }}</h3>
-                        <p class="text-muted" style="margin: 0 0 15px 0; font-size: 0.9rem;">
-                            <i class="fa-solid fa-location-dot"
-                               style="color: var(--primary-color);"></i> {{ cancha.empresa.nombre }}
-                        </p>
-
-                        <div class="disponibilidad-section">
-                            <h4 style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; color: #888; margin-bottom: 10px;">
-                                Horarios Disponibles</h4>
-                            <div class="disponibilidad-list-client"
-                                 style="display: flex; flex-direction: column; gap: 8px;">
-                                {% for d in cancha.disponibilidades.all|slice:":3" %}
-                                    {% if d.estado == 'LIBRE' %}
-                                        <div class="disponibilidad-item-client"
-                                             style="display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 8px 12px; border-radius: 8px;">
-                                            <span style="font-size: 0.9rem; font-weight: 500;">{{ d.fecha|date:"D d" }} - {{ d.hora_inicio|time:"H:i" }}</span>
-                                            <button class="btn-reservar"
-                                                    style="background: var(--primary-color); color: white; border: none; padding: 5px 12px; border-radius: 6px; font-size: 0.8rem; cursor: pointer;"
-                                                    data-url="{% url 'api_reservar' %}"
-                                                    onclick="reservarHorario('{{ d.id }}', this)">
-                                                Reservar
-                                            </button>
-                                        </div>
-                                    {% endif %}
-                                {% empty %}
-                                    <p style="font-size: 0.9rem; color: #999; font-style: italic;">No hay turnos
-                                        disponibles.</p>
-                                {% endfor %}
+                    <div class="canchas-contador">
+                        <div class="contador-content">
+                            <i class="fa-regular fa-futbol"></i>
+                            <div class="contador-info">
+                                <span class="contador-numero">{{ empresa.canchas.count }}</span>
+                                <span class="contador-label">
+                                    Cancha{{ empresa.canchas.count|pluralize:"s" }} Disponible{{ empresa.canchas.count|pluralize:"s" }}
+                                </span>
                             </div>
                         </div>
+                        <i class="fa-solid fa-arrow-right"></i>
                     </div>
-                </div>
-            {% empty %}
+                </a>
+
+                {% empty %}
                 <div class="alert-box" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
                     <i class="fa-solid fa-magnifying-glass"
                        style="font-size: 3rem; color: #ddd; margin-bottom: 1rem;"></i>
-                    <p>No encontramos canchas disponibles por el momento.</p>
+                    <p>No encontramos complejos deportivos disponibles por el momento.</p>
                 </div>
             {% endfor %}
         </div>
     </div>
+
+    <style>
+        /* Grid de Empresas */
+        .empresas-grid-client {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        /* Tarjeta de Empresa */
+        .empresa-card-client {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .empresa-card-client:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.15);
+            border-color: var(--primary-color);
+        }
+
+        /* Header de Empresa */
+        .empresa-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            padding: 1.5rem;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .empresa-info {
+            flex: 1;
+        }
+
+        .empresa-nombre {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .empresa-detalles {
+            margin: 0.25rem 0;
+            font-size: 0.9rem;
+            opacity: 0.95;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-ubicacion {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .btn-ubicacion:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        /* Contador de Canchas */
+        .canchas-contador {
+            padding: 1.5rem;
+            background: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .empresa-card-client:hover .canchas-contador {
+            background: #F9FAFB;
+        }
+
+        .contador-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .contador-content > i {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+        }
+
+        .contador-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .contador-numero {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1F2937;
+            line-height: 1;
+        }
+
+        .contador-label {
+            font-size: 0.875rem;
+            color: #6B7280;
+            margin-top: 0.25rem;
+        }
+
+        .canchas-contador > i {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            transition: transform 0.3s;
+        }
+
+        .empresa-card-client:hover .canchas-contador > i {
+            transform: translateX(5px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .empresas-grid-client {
+                grid-template-columns: 1fr;
+            }
+
+            .horarios-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cancha-item-header {
+                flex-direction: column;
+            }
+
+            .cancha-foto-small {
+                width: 100%;
+                height: 150px;
+            }
+        }
+    </style>
 {% endblock %}

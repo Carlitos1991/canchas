@@ -1,0 +1,708 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+    <div class="client-dashboard">
+        <!-- Header de la Empresa -->
+        <div class="empresa-detail-header">
+            <div class="header-content">
+                <div class="back-button">
+                    <a href="{% url 'home' %}" class="btn-back">
+                        <i class="fa-solid fa-arrow-left"></i> Volver
+                    </a>
+                </div>
+                
+                <div class="empresa-header-info">
+                    <h1 class="empresa-titulo">
+                        <i class="fa-solid fa-building"></i>
+                        {{ empresa.nombre }}
+                    </h1>
+                    <div class="empresa-meta">
+                        <p><i class="fa-solid fa-location-dot"></i> {{ empresa.direccion }}</p>
+                        {% if empresa.telefono %}
+                            <p><i class="fa-solid fa-phone"></i> {{ empresa.telefono }}</p>
+                        {% endif %}
+                        {% if empresa.ubicacion_url %}
+                            <a href="{{ empresa.ubicacion_url }}" target="_blank" class="btn-maps">
+                                <i class="fa-solid fa-map-location-dot"></i> Ver en Google Maps
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Buscador por Fecha y Hora -->
+        <div class="search-filters">
+            <div class="filter-container">
+                <div class="filter-group">
+                    <label for="fecha-buscar">
+                        <i class="fa-solid fa-calendar"></i> Fecha
+                    </label>
+                    <input type="date" id="fecha-buscar" class="form-control-filter" 
+                           min="{{ today }}" value="{{ fecha_filtro|default:'' }}">
+                </div>
+
+                <div class="filter-group">
+                    <label for="hora-buscar">
+                        <i class="fa-solid fa-clock"></i> Hora
+                    </label>
+                    <select id="hora-buscar" class="form-control-filter">
+                        <option value="">Todas las horas</option>
+                        {% for hora in horas_disponibles %}
+                            <option value="{{ hora }}">{{ hora }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button onclick="filtrarCanchas()" class="btn-filtrar">
+                    <i class="fa-solid fa-filter"></i> Filtrar
+                </button>
+
+                <button onclick="limpiarFiltros()" class="btn-limpiar">
+                    <i class="fa-solid fa-rotate-left"></i> Limpiar
+                </button>
+            </div>
+        </div>
+
+        <!-- Grid de Canchas (3 columnas) -->
+        <div class="canchas-grid-3col">
+            {% for cancha in canchas %}
+                <div class="cancha-card" onclick="abrirModalHorarios('{{ cancha.id }}')">
+                    <div class="cancha-image">
+                        {% if cancha.foto_principal %}
+                            <img src="{{ cancha.foto_principal.imagen.url }}" alt="{{ cancha.nombre }}">
+                        {% else %}
+                            <div class="no-image">
+                                <i class="fa-solid fa-image"></i>
+                            </div>
+                        {% endif %}
+                        <span class="precio-badge">
+                            ${{ cancha.precio_hora|floatformat:0 }}/hr
+                        </span>
+                    </div>
+                    
+                    <div class="cancha-info">
+                        <h3 class="cancha-nombre">{{ cancha.nombre }}</h3>
+                        <div class="cancha-detalles">
+                            <p>
+                                <i class="fa-solid fa-users"></i>
+                                Capacidad: <strong>{{ cancha.capacidad }} personas</strong>
+                            </p>
+                            {% if cancha.dimensiones %}
+                                <p>
+                                    <i class="fa-solid fa-ruler-combined"></i>
+                                    Dimensiones: <strong>{{ cancha.dimensiones }}</strong>
+                                </p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="horarios-preview">
+                            {% with disponibles=cancha.disponibilidades_libres|slice:":3" %}
+                                {% if disponibles %}
+                                    <p class="preview-label">
+                                        <i class="fa-solid fa-calendar-check"></i> 
+                                        Próximos horarios
+                                    </p>
+                                    {% for d in disponibles %}
+                                        <span class="horario-badge">
+                                            {{ d.fecha|date:"d/m" }} - {{ d.hora_inicio|time:"H:i" }}
+                                        </span>
+                                    {% endfor %}
+                                {% else %}
+                                    <p class="no-disponibles">
+                                        <i class="fa-solid fa-calendar-xmark"></i>
+                                        Sin horarios disponibles
+                                    </p>
+                                {% endif %}
+                            {% endwith %}
+                        </div>
+
+                        <button class="btn-ver-horarios" onclick="event.stopPropagation(); abrirModalHorarios('{{ cancha.id }}')">
+                            <i class="fa-solid fa-calendar-days"></i>
+                            Ver todos los horarios
+                        </button>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="no-results" style="grid-column: 1 / -1;">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <p>No hay canchas disponibles en este momento</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Modal de Horarios -->
+    <div class="modal-horarios" id="modalHorarios">
+        <div class="modal-horarios-content">
+            <div class="modal-horarios-header">
+                <h3 id="modalCanchaNombre">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    Horarios Disponibles
+                </h3>
+                <button onclick="cerrarModalHorarios()" class="btn-close-modal">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="modal-horarios-body" id="modalHorariosBody">
+                <!-- Contenido cargado dinámicamente -->
+                <div class="loading-spinner">
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                    Cargando horarios...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .client-dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header de Empresa */
+        .empresa-detail-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.2);
+        }
+
+        .back-button {
+            margin-bottom: 1rem;
+        }
+
+        .btn-back {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+        }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(-3px);
+        }
+
+        .empresa-titulo {
+            margin: 0 0 1rem 0;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .empresa-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .empresa-meta p {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-maps {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+        }
+
+        .btn-maps:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Filtros */
+        .search-filters {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .filter-container {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.9rem;
+        }
+
+        .form-control-filter {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #E5E7EB;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        .form-control-filter:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .btn-filtrar,
+        .btn-limpiar {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-filtrar {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-filtrar:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-limpiar {
+            background: #F3F4F6;
+            color: #6B7280;
+        }
+
+        .btn-limpiar:hover {
+            background: #E5E7EB;
+        }
+
+        /* Grid 3 Columnas */
+        .canchas-grid-3col {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        .cancha-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .cancha-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(16, 185, 129, 0.15);
+            border-color: var(--primary-color);
+        }
+
+        .cancha-image {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .cancha-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .cancha-card:hover .cancha-image img {
+            transform: scale(1.1);
+        }
+
+        .no-image {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #E5E7EB, #D1D5DB);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9CA3AF;
+            font-size: 3rem;
+        }
+
+        .precio-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .cancha-info {
+            padding: 1.5rem;
+        }
+
+        .cancha-nombre {
+            margin: 0 0 1rem 0;
+            font-size: 1.3rem;
+            color: #1F2937;
+            font-weight: 700;
+        }
+
+        .cancha-detalles {
+            margin-bottom: 1rem;
+        }
+
+        .cancha-detalles p {
+            margin: 0.5rem 0;
+            color: #6B7280;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .cancha-detalles i {
+            color: var(--primary-color);
+        }
+
+        .horarios-preview {
+            background: #F9FAFB;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .preview-label {
+            margin: 0 0 0.75rem 0;
+            font-size: 0.85rem;
+            color: #6B7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .horario-badge {
+            display: inline-block;
+            background: white;
+            border: 1px solid #E5E7EB;
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin: 0.25rem;
+            color: #374151;
+        }
+
+        .no-disponibles {
+            margin: 0;
+            color: #9CA3AF;
+            font-size: 0.9rem;
+            font-style: italic;
+            text-align: center;
+        }
+
+        .btn-ver-horarios {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-ver-horarios:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Modal de Horarios */
+        .modal-horarios {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal-horarios.show {
+            display: flex;
+        }
+
+        .modal-horarios-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-horarios-header {
+            padding: 1.5rem;
+            border-bottom: 2px solid #E5E7EB;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+        }
+
+        .modal-horarios-header h3 {
+            margin: 0;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-close-modal {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .btn-close-modal:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .modal-horarios-body {
+            padding: 1.5rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 3rem;
+            color: #6B7280;
+            font-size: 1.1rem;
+        }
+
+        .loading-spinner i {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .horarios-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .dia-horarios {
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .dia-header {
+            background: #F9FAFB;
+            padding: 1rem;
+            font-weight: 700;
+            color: #1F2937;
+            border-bottom: 2px solid #E5E7EB;
+        }
+
+        .horarios-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 0.75rem;
+            padding: 1rem;
+        }
+
+        .horario-item {
+            padding: 0.75rem;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 2px solid;
+            transition: all 0.3s;
+        }
+
+        .horario-item.libre {
+            background: #ECFDF5;
+            border-color: #10B981;
+        }
+
+        .horario-item.reservado {
+            background: #FEF2F2;
+            border-color: #EF4444;
+            opacity: 0.6;
+        }
+
+        .horario-item.en-curso {
+            background: #FEF3C7;
+            border-color: #F59E0B;
+        }
+
+        .horario-time {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .horario-estado {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .horario-item.libre .horario-estado {
+            background: #10B981;
+            color: white;
+        }
+
+        .horario-item.reservado .horario-estado {
+            background: #EF4444;
+            color: white;
+        }
+
+        .horario-item.en-curso .horario-estado {
+            background: #F59E0B;
+            color: white;
+        }
+
+        .horario-item.libre:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+            cursor: pointer;
+        }
+
+        .btn-reservar-horario {
+            width: 100%;
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+        }
+
+        .horario-item.libre:hover .btn-reservar-horario {
+            opacity: 1;
+            max-height: 50px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .canchas-grid-3col {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .canchas-grid-3col {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-group {
+                min-width: 100%;
+            }
+
+            .horarios-list {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #9CA3AF;
+        }
+
+        .no-results i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .no-results p {
+            font-size: 1.2rem;
+            margin: 0;
+        }
+    </style>
+
+    <script src="{% static 'js/canchas_empresa.js' %}?v=20251201"></script>
+{% endblock %}

@@ -5,7 +5,38 @@ from django.contrib import messages
 from .models import Empresa, Cancha, FotoCancha, Disponibilidad
 from . import forms as forms_module
 from django.db import transaction
+from datetime import datetime, date
 import json
+
+
+def api_listar_canchas(request):
+    try:
+        # Traemos todas las canchas activas
+        canchas = Cancha.objects.filter(estado=True)
+
+        lista_data = []
+        for c in canchas:
+            # --- CORRECCIÓN IMAGEN ---
+            # Como las fotos están en otro modelo (FotoCancha), buscamos la primera asociada.
+            # 'fotos' es el related_name que vi que usas en guardar_cancha
+            primera_foto = c.fotos.first()
+
+            imagen_url = None
+            if primera_foto:
+                imagen_url = primera_foto.imagen.url
+
+            lista_data.append({
+                'id': c.id,
+                'nombre': c.nombre,
+                'direccion': c.direccion if hasattr(c, 'direccion') else 'Dirección no disponible',
+                'precio': str(c.precio_hora) if hasattr(c, 'precio_hora') else '0.00',
+                'imagen': imagen_url  # Aquí pasamos la url real o None
+            })
+
+        return JsonResponse({'status': 'ok', 'canchas': lista_data})
+    except Exception as e:
+        print(f"ERROR API: {e}")  # Esto mostrará el error en la consola negra si vuelve a fallar
+        return JsonResponse({'status': 'error', 'mensaje': str(e)}, status=500)
 
 
 @login_required
@@ -159,3 +190,83 @@ def guardar_disponibilidad(request):
 def nueva_cancha_view(request):
     # ... (código existente, se puede revisar o eliminar si ya no se usa)
     pass
+
+
+def ver_canchas_empresa(request, empresa_id):
+    """
+    Vista para mostrar todas las canchas de una empresa específica.
+    Incluye filtrado por fecha y hora.
+    """
+    empresa = get_object_or_404(Empresa, id=empresa_id, estado=True)
+
+    # Obtener parámetros de filtro
+    fecha_filtro = request.GET.get('fecha')
+    hora_filtro = request.GET.get('hora')
+
+    # Consulta base de canchas
+    canchas = Cancha.objects.filter(
+        empresa=empresa,
+        estado=True
+    ).prefetch_related('fotos', 'disponibilidades')
+
+    # Agregar disponibilidades libres a cada cancha
+    for cancha in canchas:
+        disponibilidades = cancha.disponibilidades.filter(estado='LIBRE')
+
+        # Aplicar filtros si existen
+        if fecha_filtro:
+            disponibilidades = disponibilidades.filter(fecha=fecha_filtro)
+        if hora_filtro:
+            disponibilidades = disponibilidades.filter(hora_inicio=hora_filtro)
+
+        # Ordenar por fecha y hora
+        cancha.disponibilidades_libres = disponibilidades.order_by('fecha', 'hora_inicio')
+
+    # Generar lista de horas disponibles para el select
+    horas_disponibles = [
+        '06:00', '07:00', '08:00', '09:00', '10:00', '11:00',
+        '12:00', '13:00', '14:00', '15:00', '16:00', '17:00',
+        '18:00', '19:00', '20:00', '21:00', '22:00', '23:00'
+    ]
+
+    context = {
+        'empresa': empresa,
+        'canchas': canchas,
+        'horas_disponibles': horas_disponibles,
+        'fecha_filtro': fecha_filtro,
+        'today': date.today().isoformat(),
+    }
+
+    return render(request, 'empresas/ver_canchas_empresa.html', context)
+
+
+def obtener_horarios_cancha(request, cancha_id):
+    """
+    API AJAX para obtener todos los horarios de una cancha.
+    """
+    cancha = get_object_or_404(Cancha, id=cancha_id, estado=True)
+
+    # Obtener todas las disponibilidades futuras
+    disponibilidades = cancha.disponibilidades.filter(
+        fecha__gte=date.today()
+    ).order_by('fecha', 'hora_inicio')
+
+    horarios_data = []
+    for d in disponibilidades:
+        horarios_data.append({
+            'id': d.id,
+            'fecha': d.fecha.isoformat(),
+            'hora_inicio': d.hora_inicio.strftime('%H:%M'),
+            'hora_fin': d.hora_fin.strftime('%H:%M'),
+            'estado': d.estado,
+        })
+
+    return JsonResponse({
+        'success': True,
+        'cancha': {
+            'id': cancha.id,
+            'nombre': cancha.nombre,
+            'precio': float(cancha.precio_hora),
+        },
+        'horarios': horarios_data
+    })
